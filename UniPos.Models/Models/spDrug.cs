@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using Toolbelt.ComponentModel.DataAnnotations.Schema;
 
 namespace UniPos.Models
@@ -63,7 +62,7 @@ namespace UniPos.Models
         ///  Улчов бирлиги
         /// </summary>
         [Required]
-        public Guid UnitId { get; set; }
+        public int UnitId { get; set; }
         public virtual spUnit Unit { get; set; }
 
         /// <summary>
@@ -83,16 +82,7 @@ namespace UniPos.Models
         [StringLength(2000)]
         public string DrugRecomendation { get; set; }
 
-        /// <summary>
-        /// Бу Id Status=-1 RealId га караш керак 
-        /// </summary>
-        public Guid? RealId { get; set; }
-
-        [NotMapped]
-        public string PriceManufacturer { get; set; }
-
-        [NotMapped]
-        public string RealName { get; set; }
+       
 
     }
 }

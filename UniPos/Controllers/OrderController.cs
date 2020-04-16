@@ -1,12 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Arch.EntityFrameworkCore.UnitOfWork;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 using UniPos.Models;
+using UniPos.Models.Views;
 
 namespace UniPos.Controllers
 {
@@ -22,15 +22,71 @@ namespace UniPos.Controllers
             _context = context;
         }
 
-        // GET: api/Orders
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<tbOrderHeader>>> GettbOrders()
+
+        [HttpPost]
+        [SwaggerOperation("Янги ва узгартириш ( value.Id == null = янги )")]
+        public async Task<ActionResult> PosttbOrder(viOrder value)
         {
-            return await _context.tbOrders.ToListAsync();
+            tbOrderHeader or;
+
+            if (value.Id != null)
+            {
+                or = new tbOrderHeader();
+                or.Id = value.Id ?? value.Id.Value;
+
+                or.CreateDate = DateTime.Now;
+                or.CreateUser = value.CreateUser;
+                or.DeliveryTime = DateTime.Now.AddHours(2);
+
+                or.OrderStatusId = 1;
+                or.PaymentId = 1;
+                or.Status = 1;
+                or.UserAgentId = 1;
+            }
+            else
+            {
+                or = await _context.tbOrders.FindAsync(value.Id);
+                or.CreateDate = value.CreateDate;
+                or.CreateUser = value.CreateUser;
+                or.DeliveryTime = value.DeliveryTime;
+                or.OrderStatusId = value.OrderStatusId;
+                or.PaymentId = value.PaymentId;
+                or.UserAgentId = value.UserAgentId;
+            }
+
+            or.Status = 1;
+            or.Description = value.Description;
+            or.RegionId = value.RegionId;
+            or.DistrictId = value.DistrictId;
+            or.Address = value.Address;
+            or.DrugStoreId = value.DrugStoreId;
+            or.Latitude = value.Latitude;
+            or.Longitude = value.Longitude;
+
+            foreach (var it in value.OrderDetails)
+            {
+                var od = new tbOrderDetails();
+                od.CreateDate = DateTime.Now;
+                od.CreateUser = value.CreateUser;
+                od.DrugId = await GetDrugIdAsync(it.DrugName);
+                od.Qty = it.Qty;
+                od.Status = 1;
+            }
+
+            await _context.tbOrders.AddAsync(or);
+            await _context.SaveChangesAsync();
+
+            return Ok();
         }
 
-        // GET: api/Orders/5
+        private async Task<int> GetDrugIdAsync(string drugName)
+        {
+            var it = await _context.spDrugs.FirstOrDefaultAsync(x => x.Description == drugName);
+            return it.Id;
+        }
+
         [HttpGet("{id}")]
+        [SwaggerOperation("Фойдаланувчи заказлар руйхати")]
         public async Task<ActionResult<tbOrderHeader>> GettbOrder(int id)
         {
             var tbOrder = await _context.tbOrders.FindAsync(id);
@@ -43,9 +99,7 @@ namespace UniPos.Controllers
             return tbOrder;
         }
 
-        // PUT: api/Orders/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
+
         [HttpPut("{id}")]
         public async Task<IActionResult> PuttbOrder(int id, tbOrderHeader tbOrder)
         {
@@ -75,19 +129,7 @@ namespace UniPos.Controllers
             return NoContent();
         }
 
-        // POST: api/Orders
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
-        [HttpPost]
-        public async Task<ActionResult<tbOrderHeader>> PosttbOrder(tbOrderHeader tbOrder)
-        {
-            _context.tbOrders.Add(tbOrder);
-            await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GettbOrder", new { id = tbOrder.Id }, tbOrder);
-        }
-
-        // DELETE: api/Orders/5
         [HttpDelete("{id}")]
         public async Task<ActionResult<tbOrderHeader>> DeletetbOrder(int id)
         {

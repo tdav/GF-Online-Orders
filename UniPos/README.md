@@ -7,5 +7,17 @@ dotnet ef dbcontext scaffold "Server=localhost;Database=ef;User=root;Password=12
  CREATE DATABASE orders WITH OWNER davron;
 
 
-
  psql -h localhost -U davron -d orders -a -f init_db.sql
+
+
+
+ CREATE DATABASE orders
+    WITH 
+    OWNER = davron
+    ENCODING = 'UTF8';
+
+RESTORE DB
+    psql -h localhost -U davron orders < dbname.bak
+
+BAKCUP DB
+    pg_dump -U davron orders > dbname.bak

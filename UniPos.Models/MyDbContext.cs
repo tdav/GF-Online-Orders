@@ -30,7 +30,6 @@ namespace UniPos.Models
         public virtual DbSet<spRole> spRoles { get; set; }
         public virtual DbSet<spUnit> spUnits { get; set; }
         public virtual DbSet<spUserAgent> spUserAgents { get; set; }
-        public virtual DbSet<tbImage> tbImages { get; set; }
         public virtual DbSet<tbOrderHeader> tbOrders { get; set; }
         public virtual DbSet<tbOrderDetails> tbOrderDetails { get; set; }
         public virtual DbSet<tbProductDetails> tbProductDetails { get; set; }
@@ -52,7 +51,6 @@ namespace UniPos.Models
         {
             try
             {
-                SaveChanges();
                 _transaction.Commit();
             }
             finally
@@ -66,6 +64,8 @@ namespace UniPos.Models
             _transaction.Rollback();
             _transaction.Dispose();
         }
+
+       
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

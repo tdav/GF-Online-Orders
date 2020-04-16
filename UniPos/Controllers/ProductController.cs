@@ -1,13 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Arch.EntityFrameworkCore.UnitOfWork;
 using Arch.EntityFrameworkCore.UnitOfWork.Collections;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Annotations;
 using UniPos.Models;
+using UniPos.Models.Views;
+using System;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace UniPos.Controllers
 {
@@ -17,40 +19,57 @@ namespace UniPos.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private readonly IUnitOfWork uow;
+        private readonly MyDbContext db;
         private ILogger<ProductController> log;
 
-        public ProductController(IUnitOfWork unitOfWork, ILogger<ProductController> logger)
+        public ProductController(MyDbContext context, ILogger<ProductController> logger)
         {
             log = logger;
-            uow = unitOfWork;
+            db = context;
         }
 
 
-        [HttpGet("barcode/{pageIndex}/{pageSize}/{barcode}")]
-        public async Task<IPagedList<tbProductDetails>> GetByBarcode(int pageIndex, int pageSize, string barcode)
+        [HttpPost("barcode")]
+        public Task<List<viProduct>> SearchByBarcode([FromBody] viDrugSearch val)
         {
-            var db = uow.GetRepository<tbProductDetails>();
-            var items = await db.GetPagedListAsync(x => x.Drug.Barcode == barcode, pageIndex: pageIndex, pageSize: pageSize);
-            return items;
+            return db.tbProductDetails
+                         .Include(x => x.Drug)
+                         .Include(x => x.Drug.Manufacturer)
+                         .Where(x => x.Drug.Barcode == val.value)
+                         .Select(x => new viProduct
+                         {
+                             Id = x.Id,
+                             DrugId = x.DrugId,
+                             DrugName = x.Drug.Name,
+                             Manufacturer = x.Drug.Manufacturer.Name,
+                             ExpiryDate = x.ExpiryDate,
+                             Price = x.Price,
+                             Qty = x.Qty,
+                             Vat = x.Vat,
+                             Piece = x.Drug.Piece
+                         }).ToListAsync();
         }
 
 
-        [HttpGet("drugname/{pageIndex}/{pageSize}/{name}")]
-        public async Task<IPagedList<tbProductDetails>> GetByName(int pageIndex, int pageSize, string name)
+        [HttpPost("drugname")]
+        public Task<List<viProduct>> SearchByName([FromBody] viDrugSearch val)
         {
-            var db = uow.GetRepository<tbProductDetails>();
-            var items = await db.GetPagedListAsync(x => x.Drug.Barcode.Contains( name.Trim() ), pageIndex: pageIndex, pageSize: pageSize);
-            return items;
-        }
-
-        // GET api/values/4
-        [HttpGet("{id}")]
-        public async ValueTask<tbProductDetails> Get(int id)
-        {
-            var db = uow.GetRepository<tbProductDetails>();
-            var it = await db.FindAsync(id);
-            return it;
+            return db.tbProductDetails
+                         .Include(x => x.Drug)
+                         .Include(x => x.Drug.Manufacturer)
+                         .Where(x => EF.Functions.Like(x.Drug.Description, val.value))
+                         .Select(x => new viProduct
+                         {
+                             Id = x.Id,
+                             DrugId = x.DrugId,
+                             DrugName = x.Drug.Name,
+                             Manufacturer = x.Drug.Manufacturer.Name,
+                             ExpiryDate = x.ExpiryDate,
+                             Price = x.Price,
+                             Qty = x.Qty,
+                             Vat = x.Vat,
+                             Piece = x.Drug.Piece
+                         }).ToListAsync();
         }
     }
 }

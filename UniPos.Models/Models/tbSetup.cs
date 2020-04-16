@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace UniPos.Models
+﻿namespace UniPos.Models
 {
     /// <summary>
     /// таблица Настройка

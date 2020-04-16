@@ -227,10 +227,6 @@ namespace UniPos.Models.Migrations
                         .HasColumnName("piece")
                         .HasColumnType("integer");
 
-                    b.Property<Guid?>("RealId")
-                        .HasColumnName("real_id")
-                        .HasColumnType("uuid");
-
                     b.Property<int?>("Special")
                         .HasColumnName("special")
                         .HasColumnType("integer");
@@ -239,12 +235,8 @@ namespace UniPos.Models.Migrations
                         .HasColumnName("status")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("UnitId")
+                    b.Property<int>("UnitId")
                         .HasColumnName("unit_id")
-                        .HasColumnType("uuid");
-
-                    b.Property<int?>("UnitId1")
-                        .HasColumnName("unit_id1")
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("UpdateDate")
@@ -280,8 +272,8 @@ namespace UniPos.Models.Migrations
                     b.HasIndex("Status")
                         .HasName("ix_sp_drugs_status");
 
-                    b.HasIndex("UnitId1")
-                        .HasName("ix_sp_drugs_unit_id1");
+                    b.HasIndex("UnitId")
+                        .HasName("ix_sp_drugs_unit_id");
 
                     b.ToTable("sp_drugs");
                 });
@@ -775,10 +767,6 @@ namespace UniPos.Models.Migrations
                         .HasColumnType("character varying(200)")
                         .HasMaxLength(200);
 
-                    b.Property<int?>("ServerId")
-                        .HasColumnName("server_id")
-                        .HasColumnType("integer");
-
                     b.Property<int>("Status")
                         .HasColumnName("status")
                         .HasColumnType("integer");
@@ -847,58 +835,6 @@ namespace UniPos.Models.Migrations
                         .HasName("ix_sp_user_agents_status");
 
                     b.ToTable("sp_user_agents");
-                });
-
-            modelBuilder.Entity("UniPos.Models.tbImage", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<DateTime>("CreateDate")
-                        .HasColumnName("create_date")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int>("CreateUser")
-                        .HasColumnName("create_user")
-                        .HasColumnType("integer");
-
-                    b.Property<byte[]>("Data")
-                        .HasColumnName("data")
-                        .HasColumnType("bytea");
-
-                    b.Property<string>("FileName")
-                        .HasColumnName("file_name")
-                        .HasColumnType("text");
-
-                    b.Property<int>("MainId")
-                        .HasColumnName("main_id")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Status")
-                        .HasColumnName("status")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("UpdateDate")
-                        .HasColumnName("update_date")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int?>("UpdateUser")
-                        .HasColumnName("update_user")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id")
-                        .HasName("pk_tb_images");
-
-                    b.HasIndex("CreateUser")
-                        .HasName("ix_tb_images_create_user");
-
-                    b.HasIndex("Status")
-                        .HasName("ix_tb_images_status");
-
-                    b.ToTable("tb_images");
                 });
 
             modelBuilder.Entity("UniPos.Models.tbOrderDetails", b =>
@@ -1127,10 +1063,6 @@ namespace UniPos.Models.Migrations
                         .HasColumnName("status")
                         .HasColumnType("integer");
 
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnName("total_amount")
-                        .HasColumnType("numeric");
-
                     b.Property<DateTime?>("UpdateDate")
                         .HasColumnName("update_date")
                         .HasColumnType("timestamp without time zone");
@@ -1188,17 +1120,9 @@ namespace UniPos.Models.Migrations
                         .HasColumnType("character varying(20)")
                         .HasMaxLength(20);
 
-                    b.Property<int>("ItemQty")
-                        .HasColumnName("item_qty")
-                        .HasColumnType("integer");
-
                     b.Property<int>("Status")
                         .HasColumnName("status")
                         .HasColumnType("integer");
-
-                    b.Property<decimal>("Summa")
-                        .HasColumnName("summa")
-                        .HasColumnType("numeric");
 
                     b.Property<DateTime?>("UpdateDate")
                         .HasColumnName("update_date")
@@ -1363,8 +1287,10 @@ namespace UniPos.Models.Migrations
 
                     b.HasOne("UniPos.Models.spUnit", "Unit")
                         .WithMany()
-                        .HasForeignKey("UnitId1")
-                        .HasConstraintName("fk_sp_drugs_sp_units_unit_id1");
+                        .HasForeignKey("UnitId")
+                        .HasConstraintName("fk_sp_drugs_sp_units_unit_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("UniPos.Models.spDrugStore", b =>

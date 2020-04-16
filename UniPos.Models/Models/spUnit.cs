@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace UniPos.Models
 {
@@ -13,8 +12,6 @@ namespace UniPos.Models
         [Required]
         [StringLength(200)]
         public string Name { get; set; }
-
-        public int? ServerId { get; set; }
 
         /// <summary>
         /// Штучно сотиш мумкин ёки йук

@@ -1,10 +1,6 @@
-﻿using Aptex.Controllers;
-using Arch.EntityFrameworkCore.UnitOfWork;
-using Microsoft.AspNetCore.Authorization;
+﻿using Arch.EntityFrameworkCore.UnitOfWork;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 using Swashbuckle.AspNetCore.Annotations;
-using UniPos.Models;
 
 namespace UniPos.Controllers
 {
@@ -13,8 +9,15 @@ namespace UniPos.Controllers
     [SwaggerTag("Дори расмлари")]
     [Route("api/[controller]")]
     [ApiController]
-    public class ImagesController : BaseController<tbImage>
+    public class ImagesController : ControllerBase
     {
-        public ImagesController(IUnitOfWork unitOfWork, IMemoryCache _cache) : base(unitOfWork, _cache) { }
+        private readonly IUnitOfWork uow;
+
+        public ImagesController(IUnitOfWork unitOfWork)  
+        {
+            uow = unitOfWork;
+        }
+
+
     }
 }

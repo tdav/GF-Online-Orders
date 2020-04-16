@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.IO;
 
 namespace UniPos.Models.Utils
 {
@@ -30,11 +29,11 @@ namespace UniPos.Models.Utils
             public void Log<TState>(LogLevel logLevel, EventId eventId,
                     TState state, Exception exception, Func<TState, Exception, string> formatter)
             {
-               // lock (obj)
+                lock (obj)
                 {
 
                    // File.AppendAllText("DatabaseLog.txt", formatter(state, exception));
-                  //  Console.WriteLine(formatter(state, exception));
+                    Console.WriteLine(formatter(state, exception));
                 }
             }
         }

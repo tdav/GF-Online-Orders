@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
-using System.IO;
 
 namespace UniPos
 {
@@ -13,10 +12,11 @@ namespace UniPos
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
+                .ConfigureWebHostDefaults(x =>
                 {
-                    webBuilder.UseKestrel();
-                    webBuilder.UseStartup<Startup>();
+                    x.UseKestrel();
+                    x.UseIISIntegration();
+                    x.UseStartup<Startup>();
                 });
     }
 }

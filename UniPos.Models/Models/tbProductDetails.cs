@@ -80,11 +80,5 @@ namespace UniPos.Models
         /// </summary>
         [Required]
         public decimal ExtraCharge { get; set; }
-
-        /// <summary>
-        /// Продажада - Шу дорининг жами суммаси
-        /// </summary>              
-        public decimal TotalAmount { get; set; }
-
     }
 }
