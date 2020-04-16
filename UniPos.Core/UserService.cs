@@ -28,32 +28,28 @@ namespace UniPos.Core
         {
             viUser usr = new viUser();
  
-
             var res = db.tbUser.Include(x => x.Role)
                                .SingleOrDefault(x => x.Username == username && x.Password == password);
 
-            if (res == null)  return null;
-                      
+            if (res == null)  return null;                      
              
             var SecretStr = config.GetSection("JwtToken:SecretKey").Value;
             var key = Encoding.ASCII.GetBytes(SecretStr);
-             
-            var authClaims = new List<Claim>
+            var tokenDescriptor = new SecurityTokenDescriptor
             {
-                new Claim(ClaimTypes.Name, res.Id.ToString()),
-                new Claim(ClaimTypes.Role, res.Role.UserAccess)
+                Subject = new ClaimsIdentity(new Claim[]
+                           {
+                                new Claim(ClaimTypes.Name, res.Id.ToString()),
+                                new Claim(ClaimTypes.Role, res.Role.UserAccess)
+                           }),
+                Expires = DateTime.UtcNow.AddDays(7),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
-
-            JwtSecurityToken token = new JwtSecurityToken(
-                //issuer: issuer,
-                //audience: issuer,
-                claims: authClaims,
-                expires: DateTime.UtcNow.AddDays(7),
-                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
-            );
-            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();   
-            
-            usr.Token = handler.WriteToken(token);
+           
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+           
+            usr.Token = tokenHandler.WriteToken(token);
             usr.FirstName = res.FirstName;
             usr.LastName = res.LastName;
             usr.Username = res.Username;

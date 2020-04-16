@@ -837,6 +837,82 @@ namespace UniPos.Models.Migrations
                     b.ToTable("sp_user_agents");
                 });
 
+            modelBuilder.Entity("UniPos.Models.tbAddress", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnName("create_date")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("CreateUser")
+                        .HasColumnName("create_user")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DistrictId")
+                        .HasColumnName("district_id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Flat")
+                        .HasColumnName("flat")
+                        .HasColumnType("character varying(10)")
+                        .HasMaxLength(10);
+
+                    b.Property<string>("House")
+                        .HasColumnName("house")
+                        .HasColumnType("character varying(10)")
+                        .HasMaxLength(10);
+
+                    b.Property<decimal>("Latitude")
+                        .HasColumnName("latitude")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("Longitude")
+                        .HasColumnName("longitude")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("RegionId")
+                        .HasColumnName("region_id")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnName("status")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Street")
+                        .HasColumnName("street")
+                        .HasColumnType("character varying(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnName("update_date")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int?>("UpdateUser")
+                        .HasColumnName("update_user")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Waymark")
+                        .HasColumnName("waymark")
+                        .HasColumnType("character varying(500)")
+                        .HasMaxLength(500);
+
+                    b.HasKey("Id")
+                        .HasName("pk_tb_address");
+
+                    b.HasIndex("CreateUser")
+                        .HasName("ix_tb_address_create_user");
+
+                    b.HasIndex("Status")
+                        .HasName("ix_tb_address_status");
+
+                    b.ToTable("tb_address");
+                });
+
             modelBuilder.Entity("UniPos.Models.tbImport", b =>
                 {
                     b.Property<int>("Id")
@@ -953,10 +1029,9 @@ namespace UniPos.Models.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<string>("Address")
-                        .HasColumnName("address")
-                        .HasColumnType("character varying(500)")
-                        .HasMaxLength(500);
+                    b.Property<int>("AddressId")
+                        .HasColumnName("address_id")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnName("create_date")
@@ -975,10 +1050,6 @@ namespace UniPos.Models.Migrations
                         .HasColumnType("character varying(200)")
                         .HasMaxLength(200);
 
-                    b.Property<int?>("DistrictId")
-                        .HasColumnName("district_id")
-                        .HasColumnType("integer");
-
                     b.Property<int>("DrugStoreId")
                         .HasColumnName("drug_store_id")
                         .HasColumnType("integer");
@@ -987,24 +1058,12 @@ namespace UniPos.Models.Migrations
                         .HasColumnName("item_qty")
                         .HasColumnType("integer");
 
-                    b.Property<decimal>("Latitude")
-                        .HasColumnName("latitude")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal>("Longitude")
-                        .HasColumnName("longitude")
-                        .HasColumnType("numeric");
-
                     b.Property<int>("OrderStatusId")
                         .HasColumnName("order_status_id")
                         .HasColumnType("integer");
 
                     b.Property<int>("PaymentId")
                         .HasColumnName("payment_id")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("RegionId")
-                        .HasColumnName("region_id")
                         .HasColumnType("integer");
 
                     b.Property<int>("Status")
@@ -1029,6 +1088,9 @@ namespace UniPos.Models.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_tb_orders");
+
+                    b.HasIndex("AddressId")
+                        .HasName("ix_tb_orders_address_id");
 
                     b.HasIndex("CreateUser")
                         .HasName("ix_tb_orders_create_user");
@@ -1387,6 +1449,13 @@ namespace UniPos.Models.Migrations
 
             modelBuilder.Entity("UniPos.Models.tbOrderHeader", b =>
                 {
+                    b.HasOne("UniPos.Models.tbAddress", "Address")
+                        .WithMany()
+                        .HasForeignKey("AddressId")
+                        .HasConstraintName("fk_tb_orders_tb_address_address_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("UniPos.Models.spDrugStore", "DrugStore")
                         .WithMany()
                         .HasForeignKey("DrugStoreId")

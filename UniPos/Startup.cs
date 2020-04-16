@@ -1,6 +1,5 @@
 using System.Text;
 using Arch.EntityFrameworkCore.UnitOfWork;
-using ExtCore.WebApplication.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -14,38 +13,22 @@ using UniPos.Models;
 using UniPos.Models.Utils;
 using UniPos.Utils;
 using Swashbuckle.AspNetCore.SwaggerUI;
-using UniPos.Hubs;
-using UniPos.Core; 
-
+using UniPos.Core;
+using System.Collections.Generic;
 
 namespace UniPos
 {
     public class Startup
     {
-        private string extensionsPath;
-
+        public IConfiguration Configuration { get; }
         public Startup(IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
         {
             Configuration = configuration;
-            this.extensionsPath = webHostEnvironment.ContentRootPath + configuration["Extensions:Path"];
         }
-
-        public IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)//, ILoggerFactory loggerFactory)
         {
-            services.AddExtCore(this.extensionsPath);
-
-            services.AddCors(options =>
-            {
-                options.AddPolicy("AllowAllHeaders",
-                        builder =>
-                        {
-                            builder.AllowAnyOrigin()
-                                .AllowAnyHeader()
-                                .AllowAnyMethod();
-                        });
-            });
+            services.AddCors();
 
             services
                 .AddDbContext<MyDbContext>(opt => opt.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"),
@@ -59,32 +42,27 @@ namespace UniPos
                 .AddNewtonsoftJson()
                 .AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
 
-            services.AddSignalR();
 
 
-
-            var key = Configuration["JwtToken:SecretKey"].ToString();
-            var key_byte = Encoding.ASCII.GetBytes(key);
+            var strkey = Configuration["JwtToken:SecretKey"].ToString();
+            var key = Encoding.ASCII.GetBytes(strkey);
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-            .AddJwtBearer(x =>
-            {
-                x.RequireHttpsMetadata = false;
-                x.SaveToken = true;
-                x.TokenValidationParameters = new TokenValidationParameters()
-                {
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ClockSkew = System.TimeSpan.Zero,
-                    IssuerSigningKey = new SymmetricSecurityKey(key_byte)
-                };
-            });
-
+                    .AddJwtBearer(x =>
+                    {
+                        x.RequireHttpsMetadata = false;
+                        x.SaveToken = true;
+                        x.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            ValidateIssuerSigningKey = true,
+                            IssuerSigningKey = new SymmetricSecurityKey(key),
+                            ValidateIssuer = false,
+                            ValidateAudience = false
+                        };
+                    });
 
 
             services.AddSwaggerGen(c =>
@@ -98,47 +76,51 @@ namespace UniPos
 
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
-                    Name = "Authorization",
-                    Type = SecuritySchemeType.ApiKey,
-                    Scheme = "Bearer",
-                    BearerFormat = "JWT",
                     In = ParameterLocation.Header,
-                    Description = "JWT Authorization header using the Bearer scheme."
+                    Description = "Токентни кушиш тартиби (Bearer <token>) ---Bearer сузи ва пробел кейин токен---",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey
                 });
-
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement()
                 {
                     {
-                          new OpenApiSecurityScheme
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
                             {
-                                Reference = new OpenApiReference
-                                {
-                                    Type = ReferenceType.SecurityScheme,
-                                    Id = "Bearer"
-                                }
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
                             },
-                            new string[] {}
+                            Scheme = "oauth2",
+                            Name = "Bearer",
+                            In = ParameterLocation.Header,
 
+                        },
+                        new List<string>()
                     }
                 });
             });
             services.AddSwaggerGenNewtonsoftSupport();
-             
+            services.AddMemoryCache();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, MyDbContext dataContext)
         {
-            app.UseCors("AllowAllHeaders");
+            app.UseRouting();
 
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
-           // app.UseHttpsRedirection();
+            app.UseCors(x => x
+              .AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader());
+
             app.UseDefaultFiles();
             app.UseStaticFiles();
-            app.UseRouting();
+
 
             app.UseAuthentication();
             app.UseAuthorization();
@@ -146,7 +128,6 @@ namespace UniPos
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHub<WebrtcSignalingHub>("/signaling");
             });
 
             app.UseSwagger();
@@ -166,9 +147,6 @@ namespace UniPos
                 c.SupportedSubmitMethods(SubmitMethod.Get, SubmitMethod.Post, SubmitMethod.Delete, SubmitMethod.Put, SubmitMethod.Head);
 
             });
-
-            app.UseExtCore();
-
         }
     }
 }

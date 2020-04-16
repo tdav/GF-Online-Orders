@@ -18,14 +18,9 @@ namespace UniPos.Models
         public spDrugStore DrugStore { get; set; }
 
 
-        public int? RegionId { get; set; }
+        public int AddressId { get; set; }
+        public tbAddress Address { get; set; }
 
-        public int? DistrictId { get; set; }
-
-        [StringLength(500)]
-        public string Address { get; set; }    
-        public decimal Latitude { get; set; }
-        public decimal Longitude { get; set; }
 
         [StringLength(200)]
         public string Description { get; set; }

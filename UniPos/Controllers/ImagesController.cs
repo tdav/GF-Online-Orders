@@ -1,11 +1,12 @@
 ﻿using Arch.EntityFrameworkCore.UnitOfWork;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace UniPos.Controllers
 {
 
-    //[Authorize]
+    [Authorize]
     [SwaggerTag("Дори расмлари")]
     [Route("api/[controller]")]
     [ApiController]

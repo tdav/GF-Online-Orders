@@ -10,10 +10,11 @@ using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 
 namespace UniPos.Controllers
 {
-    // [Authorize]
+    [Authorize]
     [SwaggerTag("Дорилар руйхати")]
     [Route("api/[controller]")]
     [ApiController]

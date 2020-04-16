@@ -30,6 +30,7 @@ namespace UniPos.Models
         public virtual DbSet<spRole> spRoles { get; set; }
         public virtual DbSet<spUnit> spUnits { get; set; }
         public virtual DbSet<spUserAgent> spUserAgents { get; set; }
+        public virtual DbSet<tbAddress> tbAddress { get; set; }
         public virtual DbSet<tbImport> tbImports { get; set; }
         public virtual DbSet<tbOrderHeader> tbOrders { get; set; }
         public virtual DbSet<tbOrderDetails> tbOrderDetails { get; set; }

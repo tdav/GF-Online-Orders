@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Apteka.SqlServer", "Convert
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Convert", "Convert\Convert\Convert.csproj", "{D145D139-0783-48AA-980B-326305BF9CC0}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UniPos.Utils", "UniPos.Utils\UniPos.Utils.csproj", "{4C84D8BC-F1D0-49EA-83A6-44156F5E2ACB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,10 @@ Global
 		{D145D139-0783-48AA-980B-326305BF9CC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D145D139-0783-48AA-980B-326305BF9CC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D145D139-0783-48AA-980B-326305BF9CC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C84D8BC-F1D0-49EA-83A6-44156F5E2ACB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C84D8BC-F1D0-49EA-83A6-44156F5E2ACB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C84D8BC-F1D0-49EA-83A6-44156F5E2ACB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C84D8BC-F1D0-49EA-83A6-44156F5E2ACB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

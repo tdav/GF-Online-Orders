@@ -8,10 +8,11 @@ using UniPos.Core;
 using UniPos.Models.Views;
 using System;
 using System.Threading.Tasks;
+using UniPos.Extensions;
 
 namespace UniPos.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     [SwaggerTag("Фойдаланувчилар")]
@@ -24,6 +25,13 @@ namespace UniPos.Controllers
         {
             db = _db;
             _logger = logger;
+        }
+
+        [HttpGet("test/{id}")]
+        public string Test(string id)
+        {
+            var ss = (User.IsRoleAdmin() ? "admin" : "user") + " ID:" + User.GetId().ToString();
+            return ss;
         }
 
         [AllowAnonymous]
