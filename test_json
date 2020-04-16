@@ -1,0 +1,65 @@
+{
+  "drugStoreName": "string",
+  "regionId": 10,
+  "districtId": 542,
+  "address": "string",
+  "latitude": 0,
+  "longitude": 0,
+  "deliveryTime": "2020-04-16T13:59:55.792Z",
+  "paymentId": 1,
+  "userAgentId": 1,
+  "orderDetails": [
+    {
+      "qty": 2,
+	  "price": 1000,
+      "totalSum": 2000,
+      "drugName": "Йодомарин 100 (таб)"
+    },
+{
+      "qty": 3,
+	  "price": 1000,
+      "totalSum": 3000,
+      "drugName": "Берлитион капс. 600мг №30"
+    },
+{
+      "qty": 4,
+	  "price": 1000,
+      "totalSum": 4000,
+      "drugName": "Зодак таб. 10мг №30"
+    }
+  ]
+}
+
+
+
+{
+  "drugStoreName": "string",
+  "regionId": 10,
+  "districtId": 542,
+  "address": "string",
+  "latitude": 0,
+  "longitude": 0,
+  "deliveryTime": "2020-04-16T13:59:55.792Z",
+  "paymentId": 1,
+  "userAgentId": 1,
+  "orderDetails": [
+    {
+      "qty": 7,
+	  "price": 1000,
+      "totalSum": 7000,
+      "productId": 6987
+    },
+{
+      "qty": 1,
+	  "price": 1000,
+      "totalSum": 1000,
+      "productId": 6991
+    },
+{
+      "qty": 9,
+	  "price": 1000,
+      "totalSum": 9000,
+      "productId": 6982
+    }
+  ]
+}

@@ -22,10 +22,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="UserSync.cs">
+    <Compile Update="Sync\GfDrugListSync.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="ProductSync.cs">
+    <Compile Update="Sync\UserSync.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Sync\ProductSync.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

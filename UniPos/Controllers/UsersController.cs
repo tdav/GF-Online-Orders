@@ -5,6 +5,9 @@ using Microsoft.Extensions.Logging;
 using UniPos.Models;
 using Swashbuckle.AspNetCore.Annotations;
 using UniPos.Core;
+using UniPos.Models.Views;
+using System;
+using System.Threading.Tasks;
 
 namespace UniPos.Controllers
 {
@@ -22,6 +25,36 @@ namespace UniPos.Controllers
             db = _db;
             _logger = logger;
         }
+
+        [AllowAnonymous]
+        [HttpPost("register")]
+        [SwaggerOperation("Янги фойдаланувчи")]
+        public async Task<ActionResult> Authenticate([FromBody] viRegisterUserModel model)
+        {
+            var rp = db.GetRepository<tbUser>(true) as UserService;
+
+            var eu = await rp.GetFirstOrDefaultAsync(predicate: x => x.Username == model.Username, disableTracking: true);
+            if (eu != null) return BadRequest("Бундай фойдаланувчи бор");
+
+
+            var u = new tbUser();
+            u.FirstName = model.FirstName;
+            u.LastName = model.LastName;
+            u.Username = model.Username;
+            u.Password = model.Password;
+            u.Phone = model.Phone;
+            u.RoleId = 2;
+            u.Status = 1;
+            u.CreateUser = 1;
+            u.CreateDate = DateTime.Now;
+
+
+            await rp.InsertAsync(u);
+            await db.SaveChangesAsync();
+
+            return Ok();
+        }
+
 
         [AllowAnonymous]
         [HttpPost("login")]
@@ -44,7 +77,7 @@ namespace UniPos.Controllers
             var rpUser = db.GetRepository<tbUser>(true) as UserService;
             var users = rpUser.GetAllUsers();
 
-            return Ok(users);
+            return Ok(users.WithoutPasswords());
         }
     }
 }

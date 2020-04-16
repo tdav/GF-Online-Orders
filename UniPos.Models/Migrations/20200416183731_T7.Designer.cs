@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UniPos.Models;
@@ -9,9 +10,10 @@ using UniPos.Models;
 namespace UniPos.Models.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200416183731_T7")]
+    partial class T7
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -895,10 +897,6 @@ namespace UniPos.Models.Migrations
                         .HasColumnName("create_user")
                         .HasColumnType("integer");
 
-                    b.Property<decimal>("Price")
-                        .HasColumnName("price")
-                        .HasColumnType("numeric");
-
                     b.Property<int>("ProductId")
                         .HasColumnName("product_id")
                         .HasColumnType("integer");
@@ -910,10 +908,6 @@ namespace UniPos.Models.Migrations
                     b.Property<int>("Status")
                         .HasColumnName("status")
                         .HasColumnType("integer");
-
-                    b.Property<decimal>("TotalSum")
-                        .HasColumnName("total_sum")
-                        .HasColumnType("numeric");
 
                     b.Property<DateTime?>("UpdateDate")
                         .HasColumnName("update_date")

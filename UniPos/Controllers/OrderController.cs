@@ -24,23 +24,20 @@ namespace UniPos.Controllers
 
 
         [HttpPost]
-        [SwaggerOperation("Янги ва узгартириш ( value.Id == null = янги )")]
+        [SwaggerOperation("Янги")]
         public async Task<ActionResult> PosttbOrder(viOrder value)
         {
             tbOrderHeader or;
 
-            if (value.Id != null)
+            if (value.Id == null)
             {
                 or = new tbOrderHeader();
-                or.Id = value.Id ?? value.Id.Value;
-
                 or.CreateDate = DateTime.Now;
                 or.CreateUser = value.CreateUser;
                 or.DeliveryTime = DateTime.Now.AddHours(2);
 
                 or.OrderStatusId = 1;
                 or.PaymentId = 1;
-                or.Status = 1;
                 or.UserAgentId = 1;
             }
             else
@@ -55,22 +52,32 @@ namespace UniPos.Controllers
             }
 
             or.Status = 1;
+            or.DrugStoreId = 1001;
             or.Description = value.Description;
             or.RegionId = value.RegionId;
             or.DistrictId = value.DistrictId;
             or.Address = value.Address;
-            or.DrugStoreId = value.DrugStoreId;
             or.Latitude = value.Latitude;
             or.Longitude = value.Longitude;
+            or.ItemQty = value.OrderDetails.Count();
+            or.Summa = value.OrderDetails.Sum(x => x.TotalSum);
 
+            or.OrderDetails = new List<tbOrderDetails>();
             foreach (var it in value.OrderDetails)
             {
                 var od = new tbOrderDetails();
                 od.CreateDate = DateTime.Now;
                 od.CreateUser = value.CreateUser;
-                od.DrugId = await GetDrugIdAsync(it.DrugName);
+
+                if (it.ProductId == null)
+                    od.ProductId = await GetDrugIdAsync(it.DrugName);
+                else
+                    od.ProductId = it.ProductId ?? it.ProductId.Value;
+
                 od.Qty = it.Qty;
                 od.Status = 1;
+
+                or.OrderDetails.Add(od);
             }
 
             await _context.tbOrders.AddAsync(or);
@@ -81,15 +88,19 @@ namespace UniPos.Controllers
 
         private async Task<int> GetDrugIdAsync(string drugName)
         {
-            var it = await _context.spDrugs.FirstOrDefaultAsync(x => x.Description == drugName);
+            var it = await _context.tbProductDetails
+                                   .Include(x => x.Drug)
+                                   .FirstOrDefaultAsync(x => x.Drug.Description == drugName);
             return it.Id;
         }
 
         [HttpGet("{id}")]
-        [SwaggerOperation("Фойдаланувчи заказлар руйхати")]
+        [SwaggerOperation("Фойдаланувчи закази")]
         public async Task<ActionResult<tbOrderHeader>> GettbOrder(int id)
         {
-            var tbOrder = await _context.tbOrders.FindAsync(id);
+            var tbOrder = await _context.tbOrders
+                                        .Include(x => x.OrderDetails)
+                                        .SingleOrDefaultAsync(x => x.Id == id);
 
             if (tbOrder == null)
             {

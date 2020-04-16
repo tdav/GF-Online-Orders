@@ -36,6 +36,7 @@ namespace UniPos.Controllers
                          .Include(x => x.Drug)
                          .Include(x => x.Drug.Manufacturer)
                          .Where(x => x.Drug.Barcode == val.value)
+                         .Take(20)
                          .Select(x => new viProduct
                          {
                              Id = x.Id,
@@ -54,10 +55,12 @@ namespace UniPos.Controllers
         [HttpPost("drugname")]
         public Task<List<viProduct>> SearchByName([FromBody] viDrugSearch val)
         {
+            var str = FixTiLike(val.value);
             return db.tbProductDetails
                          .Include(x => x.Drug)
                          .Include(x => x.Drug.Manufacturer)
-                         .Where(x => EF.Functions.Like(x.Drug.Description, val.value))
+                         .Where(x => EF.Functions.Like(x.Drug.Name, str))
+                         .Take(20)
                          .Select(x => new viProduct
                          {
                              Id = x.Id,
@@ -70,6 +73,16 @@ namespace UniPos.Controllers
                              Vat = x.Vat,
                              Piece = x.Drug.Piece
                          }).ToListAsync();
+        }
+
+        private static string FixTiLike(string val)
+        {
+            var s = val.ToLower().Trim();
+
+            while (s.IndexOf(' ') > 0)
+                s = s.Replace(' ', '%');
+
+            return $"%{s}%";
         }
     }
 }

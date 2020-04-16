@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UniPos.Models;
@@ -9,9 +10,10 @@ using UniPos.Models;
 namespace UniPos.Models.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200416163450_T6")]
+    partial class T6
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -895,12 +897,8 @@ namespace UniPos.Models.Migrations
                         .HasColumnName("create_user")
                         .HasColumnType("integer");
 
-                    b.Property<decimal>("Price")
-                        .HasColumnName("price")
-                        .HasColumnType("numeric");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnName("product_id")
+                    b.Property<int>("DrugId")
+                        .HasColumnName("drug_id")
                         .HasColumnType("integer");
 
                     b.Property<int>("Qty")
@@ -910,10 +908,6 @@ namespace UniPos.Models.Migrations
                     b.Property<int>("Status")
                         .HasColumnName("status")
                         .HasColumnType("integer");
-
-                    b.Property<decimal>("TotalSum")
-                        .HasColumnName("total_sum")
-                        .HasColumnType("numeric");
 
                     b.Property<DateTime?>("UpdateDate")
                         .HasColumnName("update_date")
@@ -933,8 +927,8 @@ namespace UniPos.Models.Migrations
                     b.HasIndex("CreateUser")
                         .HasName("ix_tb_order_details_create_user");
 
-                    b.HasIndex("ProductId")
-                        .HasName("ix_tb_order_details_product_id");
+                    b.HasIndex("DrugId")
+                        .HasName("ix_tb_order_details_drug_id");
 
                     b.HasIndex("Status")
                         .HasName("ix_tb_order_details_status");
@@ -1372,10 +1366,10 @@ namespace UniPos.Models.Migrations
 
             modelBuilder.Entity("UniPos.Models.tbOrderDetails", b =>
                 {
-                    b.HasOne("UniPos.Models.tbProductDetails", "Product")
+                    b.HasOne("UniPos.Models.spDrug", "Drug")
                         .WithMany()
-                        .HasForeignKey("ProductId")
-                        .HasConstraintName("fk_tb_order_details_tb_product_details_product_id")
+                        .HasForeignKey("DrugId")
+                        .HasConstraintName("fk_tb_order_details_sp_drugs_drug_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

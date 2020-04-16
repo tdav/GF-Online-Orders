@@ -14,7 +14,7 @@ namespace Convert
 
             try
             {
-
+                /*
                 Sync<UniPos.Models.spCountry, Apteka.SqlServer.spCountries>.Run(sqlserver, postgres);
                 Sync<UniPos.Models.spRegion, Apteka.SqlServer.spRegions>.Run(sqlserver, postgres);
                 Sync<UniPos.Models.spDistrict, Apteka.SqlServer.spDistricts>.Run(sqlserver, postgres);
@@ -22,6 +22,10 @@ namespace Convert
                 DrugListSync.Run(sqlserver, postgres);
                 ProductSync.Run(sqlserver, postgres);
                 UserSync.Run(sqlserver, postgres);
+                */
+
+                GfDrugListSync.Run(postgres);
+
                 postgres.Commit();
             }
             catch (Exception ee)
