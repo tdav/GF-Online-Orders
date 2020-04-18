@@ -17,6 +17,7 @@
           :style="{ width: width + 'px' }"
           v-model="dateFormatted"
           outlined
+          hide-details=true
         >
           <v-icon v-on="on" slot="append">mdi-calendar</v-icon>
         </v-text-field>

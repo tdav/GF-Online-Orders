@@ -62,8 +62,8 @@ import { initStates } from "../store/_initStates";
 export default {
   data: () => ({
     loading: false,
-    login: "turopoff",
-    password: "turopoff"
+    login: "",
+    password: ""
   }),
 
   methods: {

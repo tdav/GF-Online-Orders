@@ -9,7 +9,7 @@ namespace UniPos.Models.Views
         public int? Id { get; set; }
         public int DrugStoreId { get; set; }
         public string DrugStoreName { get; set; }
-        
+
         public int? AddressId { get; set; }
         public string AddressName { get; set; }
         public int? RegionId { get; set; }
@@ -22,7 +22,7 @@ namespace UniPos.Models.Views
         public string Waymark { get; set; }
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }
-        
+        public string Phone { get; set; }
 
 
         public string Description { get; set; }
@@ -35,6 +35,8 @@ namespace UniPos.Models.Views
         public string PaymentName { get; set; }
         public int UserAgentId { get; set; }
         public string UserAgentName { get; set; }
+
+
         public int CreateUser { get; set; }
         public DateTime CreateDate { get; set; }
 

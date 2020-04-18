@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Toolbelt.ComponentModel.DataAnnotations.Schema;
 
 namespace UniPos.Models
 {
@@ -28,6 +29,7 @@ namespace UniPos.Models
         /// <summary>
         /// Время доставки
         /// </summary>
+        [Index]
         [Required]
         public DateTime DeliveryTime { get; set; }
 
@@ -60,6 +62,9 @@ namespace UniPos.Models
         /// Сумма 
         /// </summary>
         public decimal Summa { get; set; }
+
+        [StringLength(20)]
+        public string Phone { get; set; }
 
         public ICollection<tbOrderDetails> OrderDetails { get; set; }
     }

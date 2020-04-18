@@ -14,6 +14,7 @@ namespace UniPos.Models
         [DefaultValue(1)]
         public int Status { get; set; }
 
+        [Index]
         [Required]
         public DateTime CreateDate { get; set; }
 

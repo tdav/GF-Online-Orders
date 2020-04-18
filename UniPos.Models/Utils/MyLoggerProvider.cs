@@ -33,6 +33,8 @@ namespace UniPos.Models.Utils
                 {
 
                    // File.AppendAllText("DatabaseLog.txt", formatter(state, exception));
+                    Console.WriteLine("");
+                    Console.WriteLine("");
                     Console.WriteLine(formatter(state, exception));
                 }
             }

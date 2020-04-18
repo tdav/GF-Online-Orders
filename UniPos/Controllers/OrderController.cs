@@ -54,7 +54,7 @@ namespace UniPos.Controllers
                 }
 
                 var dt = await ctx.spDeliveryTypes.FindAsync(value.DeliveryTypeId);
-
+                var phone = await ctx.tbUser.FindAsync(User.GetId());
 
                 or.Status = 1;
                 or.DrugStoreId = 1001;
@@ -63,7 +63,7 @@ namespace UniPos.Controllers
                 or.PaymentId = value.PaymentId;
                 or.UserAgentId = value.UserAgentId;
                 or.DeliveryTypeId = value.DeliveryTypeId;
-
+                or.Phone = value.Phone;
 
                 if (value.AddressId == null || value.AddressId == 0)
                 {
@@ -133,133 +133,18 @@ namespace UniPos.Controllers
             return it.Id;
         }
 
+
         [HttpGet("{id}")]
         [SwaggerOperation("Фойдаланувчи закази")]
         public async Task<ActionResult<viOrder>> GetOrderById(int id)
         {
-            var tbOrder = await ctx.tbOrders
-                                        .Where(x => x.CreateUser == User.GetId())
-
-                                        .Include(x => x.Address)
-                                        .Include(x => x.Address.District)
-                                        .Include(x => x.Address.District.Region)
-                                        .Include(x => x.DeliveryType)
-                                        .Include(x => x.DrugStore)
-                                        .Include(x => x.OrderStatus)
-                                        .Include(x => x.Payment)
-                                        .Include(x => x.UserAgent)
-                                        .Select(x => new viOrder
-                                        {
-                                            Id = x.Id,
-                                            AddressId = x.AddressId,
-                                            AddressName = x.Address.Description,
-                                            RegionId = x.Address.RegionId,
-                                            RegionName = x.Address.Region.Name,
-                                            DistrictId = x.Address.DistrictId,
-                                            DistrictName = x.Address.District.Name,
-                                            Street = x.Address.Street,
-                                            House = x.Address.House,
-                                            Waymark = x.Address.Waymark,
-                                            Flat = x.Address.Flat,
-                                            Latitude = x.Address.Latitude,
-                                            Longitude = x.Address.Longitude,
-
-
-                                            DrugStoreId = x.DrugStoreId,
-                                            DrugStoreName = x.DrugStore.Name,
-
-                                            DeliveryTime = x.DeliveryTime,
-                                            DeliveryTypeId = x.DeliveryTypeId,
-                                            DeliveryTypeName = x.DeliveryType.Name,
-
-                                            OrderStatusId = x.OrderStatusId,
-                                            OrderStatusName = x.OrderStatus.Name,
-                                            PaymentId = x.PaymentId,
-                                            PaymentName = x.Payment.Name,
-
-                                            UserAgentId = x.UserAgentId,
-                                            UserAgentName = x.UserAgent.Name,
-
-                                            CreateDate = x.CreateDate,
-                                            CreateUser = x.CreateUser,
-                                            Description = x.Description,
-                                            Status = x.Status,
-                                            OrderDetails = x.OrderDetails
-                                                            .Select(t => new viOrderDetails
-                                                            {
-                                                                Id = t.Id,
-                                                                ProductId = t.ProductId,
-                                                                DrugName = t.Product.Drug.Name,
-                                                                Qty = t.Qty,
-                                                                Price = t.Price,
-                                                                TotalSum = t.TotalSum
-
-                                                            }).ToList()
-                                        })
-                                        .SingleOrDefaultAsync(x => x.Id == id);
-
-            if (tbOrder == null)
-            {
-                return NotFound();
-            }
-
-            return tbOrder;
-        }
-
-
-        [HttpPost("filter")]
-        [SwaggerOperation("Закази хаммаси")]
-        public async Task<ActionResult<List<viOrder>>> GetOrderAll(viOrderSearchParam param)
-        {
-            if (param == null) return BadRequest();
-
-            var query = ctx.tbOrders.Include(x => x.OrderDetails);
-
+            var query = ctx.tbOrders.AsQueryable();
 
             if (!User.IsRoleAdmin())
-                query.Where(x => x.CreateUser == param.CreateUser);
-
-            if (param.CreateUser != null)
-                query.Where(x => x.CreateUser == param.CreateUser);
-
-            if (param.DistrictId != null)
-                query.Include(x => x.Address).Where(x => x.Address.DistrictId == param.DistrictId);
-
-            if (param.DrugStoreId != null)
-                query.Where(x => x.DrugStoreId == param.DrugStoreId);
-
-            if (param.OrderStatusId != null)
-                query.Where(x => x.OrderStatusId == param.OrderStatusId);
-
-            if (param.PaymentId != null)
-                query.Where(x => x.PaymentId == param.PaymentId);
-
-            if (param.UserAgentId != null)
-                query.Where(x => x.UserAgentId == param.UserAgentId);
-
-
-            if (param.CreateDate1 != null && param.CreateDate2 != null)
-                query.Where(x => x.CreateDate <= param.CreateDate1 && x.CreateDate >= param.CreateDate2);
-
-            if (param.CreateDate1 != null && param.CreateDate2 == null)
-                query.Where(x => x.CreateDate <= param.CreateDate1);
-
-            if (param.CreateDate1 == null && param.CreateDate2 != null)
-                query.Where(x => x.CreateDate >= param.CreateDate2);
-
-
-            if (param.DeliveryTime1 != null && param.DeliveryTime2 != null)
-                query.Where(x => x.DeliveryTime <= param.DeliveryTime1 && x.DeliveryTime >= param.DeliveryTime2);
-
-            if (param.DeliveryTime1 != null && param.DeliveryTime2 == null)
-                query.Where(x => x.DeliveryTime <= param.DeliveryTime1);
-
-            if (param.DeliveryTime1 == null && param.DeliveryTime2 != null)
-                query.Where(x => x.DeliveryTime >= param.DeliveryTime2);
-
-
+                query = query.Where(x => x.CreateUser == User.GetId());
 
             var list = await query
+                                .Include(x => x.OrderDetails)
                                 .Include(x => x.Address)
                                 .Include(x => x.Address.District)
                                 .Include(x => x.Address.District.Region)
@@ -284,6 +169,127 @@ namespace UniPos.Controllers
                                     Latitude = x.Address.Latitude,
                                     Longitude = x.Address.Longitude,
 
+                                    DrugStoreId = x.DrugStoreId,
+                                    DrugStoreName = x.DrugStore.Name,
+
+                                    DeliveryTime = x.DeliveryTime,
+                                    DeliveryTypeId = x.DeliveryTypeId,
+                                    DeliveryTypeName = x.DeliveryType.Name,
+
+                                    OrderStatusId = x.OrderStatusId,
+                                    OrderStatusName = x.OrderStatus.Name,
+                                    PaymentId = x.PaymentId,
+                                    PaymentName = x.Payment.Name,
+
+                                    UserAgentId = x.UserAgentId,
+                                    UserAgentName = x.UserAgent.Name,
+
+                                    CreateDate = x.CreateDate,
+                                    CreateUser = x.CreateUser,
+                                    Description = x.Description,
+                                    Status = x.Status,
+                                    Phone = x.Phone,
+                                    OrderDetails = x.OrderDetails
+                                                    .Select(t => new viOrderDetails
+                                                    {
+                                                        Id = t.Id,
+                                                        ProductId = t.ProductId,
+                                                        DrugName = t.Product.Drug.Name,
+                                                        Qty = t.Qty,
+                                                        Price = t.Price,
+                                                        TotalSum = t.TotalSum
+
+                                                    }).ToList()
+                                })
+                                .SingleOrDefaultAsync(x => x.Id == id);
+
+            if (list == null)
+                return NotFound();
+
+            return list;
+        }
+
+
+        [HttpPost("filter")]
+        [SwaggerOperation("Закази хаммаси")]
+        public async Task<ActionResult<List<viOrder>>> GetOrderAll(viOrderSearchParam param)
+        {
+            if (param == null) return BadRequest();
+
+            var query = ctx.tbOrders.AsQueryable();
+
+
+            if (!User.IsRoleAdmin())
+                query = query.Where(x => x.CreateUser == param.CreateUser);
+
+            if (param.OrderId != null)
+                query = query.Where(x => x.Id == param.OrderId);
+
+            if (param.CreateUser != null)
+                query = query.Where(x => x.CreateUser == param.CreateUser);
+
+            if (param.DistrictId != null)
+                query = query.Include(x => x.Address).Where(x => x.Address.DistrictId == param.DistrictId);
+
+            if (param.DrugStoreId != null)
+                query = query.Where(x => x.DrugStoreId == param.DrugStoreId);
+
+            if (param.OrderStatusId != null)
+                query = query.Where(x => x.OrderStatusId == param.OrderStatusId);
+
+            if (param.PaymentId != null)
+                query = query.Where(x => x.PaymentId == param.PaymentId);
+
+            if (param.UserAgentId != null)
+                query = query.Where(x => x.UserAgentId == param.UserAgentId);
+
+
+            if (param.CreateDate1 != null && param.CreateDate2 != null)
+                query = query.Where(x => x.CreateDate >= param.CreateDate1 && x.CreateDate <= param.CreateDate2);
+
+            if (param.CreateDate1 != null && param.CreateDate2 == null)
+                query = query.Where(x => x.CreateDate >= param.CreateDate1);
+
+            if (param.CreateDate1 == null && param.CreateDate2 != null)
+                query = query.Where(x => x.CreateDate <= param.CreateDate2);
+
+
+            if (param.DeliveryTime1 != null && param.DeliveryTime2 != null)
+                query = query.Where(x => x.DeliveryTime >= param.DeliveryTime1 && x.DeliveryTime <= param.DeliveryTime2);
+
+            if (param.DeliveryTime1 != null && param.DeliveryTime2 == null)
+                query = query.Where(x => x.DeliveryTime >= param.DeliveryTime1);
+
+            if (param.DeliveryTime1 == null && param.DeliveryTime2 != null)
+                query = query.Where(x => x.DeliveryTime <= param.DeliveryTime2);
+
+
+
+            var list = await query
+                                .Include(x => x.OrderDetails)
+                                .Include(x => x.Address)
+                                .Include(x => x.Address.District)
+                                .Include(x => x.Address.District.Region)
+                                .Include(x => x.DeliveryType)
+                                .Include(x => x.DrugStore)
+                                .Include(x => x.OrderStatus)
+                                .Include(x => x.Payment)
+                                .Include(x => x.UserAgent)
+                                .Select(x => new viOrder
+                                {
+                                    Id = x.Id,
+                                    AddressId = x.AddressId,
+                                    AddressName = x.Address.Description,
+                                    RegionId = x.Address.RegionId,
+                                    RegionName = x.Address.Region.Name,
+                                    DistrictId = x.Address.DistrictId,
+                                    DistrictName = x.Address.District.Name,
+                                    Street = x.Address.Street,
+                                    House = x.Address.House,
+                                    Waymark = x.Address.Waymark,
+                                    Flat = x.Address.Flat,
+                                    Latitude = x.Address.Latitude,
+                                    Longitude = x.Address.Longitude,
 
                                     DrugStoreId = x.DrugStoreId,
                                     DrugStoreName = x.DrugStore.Name,
@@ -303,6 +309,7 @@ namespace UniPos.Controllers
                                     CreateDate = x.CreateDate,
                                     CreateUser = x.CreateUser,
                                     Description = x.Description,
+                                    Phone = x.Phone,
                                     Status = x.Status,
                                     OrderDetails = x.OrderDetails
                                                     .Select(t => new viOrderDetails

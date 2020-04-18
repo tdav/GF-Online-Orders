@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UniPos.Models;
@@ -9,9 +10,10 @@ using UniPos.Models;
 namespace UniPos.Models.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200418214314_T15")]
+    partial class T15
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1186,11 +1188,6 @@ namespace UniPos.Models.Migrations
                     b.Property<int>("PaymentId")
                         .HasColumnName("payment_id")
                         .HasColumnType("integer");
-
-                    b.Property<string>("Phone")
-                        .HasColumnName("phone")
-                        .HasColumnType("character varying(20)")
-                        .HasMaxLength(20);
 
                     b.Property<int>("Status")
                         .HasColumnName("status")

@@ -1,42 +1,9 @@
 <template>
   <div>
-    <v-navigation-drawer
-      v-model="drawer"
-      :clipped="$vuetify.breakpoint.lgAndUp"
-      app
-    >
+    <v-navigation-drawer v-model="drawer" :clipped="$vuetify.breakpoint.lgAndUp" app>
       <v-list dense>
         <template v-for="item in navItems">
-          <v-row v-if="item.heading" :key="item.heading" align="center">
-            <v-col cols="6">
-              <v-subheader v-if="item.heading">{{ item.heading }}</v-subheader>
-            </v-col>
-            <v-col cols="6" class="text-center">
-              <a href="#!" class="body-2 black--text">EDIT</a>
-            </v-col>
-          </v-row>
-          <v-list-group
-            v-else-if="item.children"
-            :key="item.text"
-            v-model="item.model"
-            :prepend-icon="item.model ? item.icon : item['icon-alt']"
-            append-icon
-          >
-            <template v-slot:activator>
-              <v-list-item-content>
-                <v-list-item-title>{{ item.text }}</v-list-item-title>
-              </v-list-item-content>
-            </template>
-            <v-list-item v-for="(child, i) in item.children" :key="i" link>
-              <v-list-item-action v-if="child.icon">
-                <v-icon>{{ child.icon }}</v-icon>
-              </v-list-item-action>
-              <v-list-item-content>
-                <v-list-item-title>{{ child.text }}</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list-group>
-          <v-list-item v-else :key="item.text" link>
+          <v-list-item :key="item.text" @click="onNavClick(item.text)">
             <v-list-item-action>
               <v-icon>{{ item.icon }}</v-icon>
             </v-list-item-action>
@@ -48,12 +15,7 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-app-bar
-      :clipped-left="$vuetify.breakpoint.lgAndUp"
-      app
-      color="blue darken-3"
-      dark
-    >
+    <v-app-bar :clipped-left="$vuetify.breakpoint.lgAndUp" app color="blue darken-3" dark>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <v-toolbar-title style="width: 300px" class="ml-0 pl-4">
         <span class="hidden-sm-and-down">Pharmacy</span>
@@ -73,83 +35,119 @@
     <v-content>
       <v-container>
         <v-row>
-          <div class="w-100 px-3">
-            <div>
-              Доставка
-            </div>
-          </div>
-          <v-col class="pb-0" cols="3">
-            <v-select
-              :items="districts"
-              dense
-              label="Район"
-              outlined
-              item-text="name"
-              item-value="id"
-              v-model="ordersFilter.districtId"
-            />
-          </v-col>
-          <v-col class="pb-0" cols="2">
-            <DatePicker
-              :model="ordersFilter.deliveryTime1"
-              @model="e => ordersFilter.deliveryTime1"
-              title="От"
-            />
+          <v-col class="pb-0" cols="7">
+            <v-card  class="elevation-2">
+              <v-card-title>Доставка</v-card-title>
+
+              <v-card-text>
+                <v-layout row>
+                  <v-col class="pb-0" cols="2">
+                    <v-text-field
+                      dense
+                      label="Заказ №"
+                      v-model="ordersFilter.orderId"
+                      outlined
+                      hide-details="true"
+                    />
+                  </v-col>
+
+                  <v-col class="pb-0" cols="3">
+                    <v-select
+                      :items="districts"
+                      dense
+                      label="Район"
+                      outlined
+                      item-text="name"
+                      item-value="id"
+                      v-model="ordersFilter.districtId"
+                      hide-details="true"
+                    />
+                  </v-col>
+                  <v-col class="pb-0" cols="2">
+                    <DatePicker
+                      :model="ordersFilter.deliveryTime1"
+                      @model="e => ordersFilter.deliveryTime1"
+                      title="От"
+                    />
+                  </v-col>
+
+                  <v-col class="pb-0" cols="2">
+                    <DatePicker
+                      :model="ordersFilter.deliveryTime2"
+                      @model="e => ordersFilter.deliveryTime2"
+                      title="До"
+                    />
+                  </v-col>
+                  <v-col class="pb-0" cols="3">
+                    <v-select
+                      :items="payments"
+                      dense
+                      label="Тип оплаты"
+                      outlined
+                      item-text="name"
+                      item-value="id"
+                      hide-details="true"
+                      v-model="ordersFilter.paymentId"
+                    />
+                  </v-col>
+                </v-layout>
+              </v-card-text>
+            </v-card>
           </v-col>
 
-          <v-col class="pb-0" cols="2">
-            <DatePicker
-              :model="ordersFilter.deliveryTime2"
-              @model="e => ordersFilter.deliveryTime2"
-              title="До"
-            />
-          </v-col>
-          <v-col class="pb-0" cols="2">
-            <v-select
-              :items="payments"
-              dense
-              label="Тип оплаты"
-              outlined
-              item-text="name"
-              item-value="id"
-              v-model="ordersFilter.paymentId"
-            />
-          </v-col>
-        </v-row>
-        <v-row>
-          <div class="w-100 px-3">
-            <div>
-              Заказ
-            </div>
-          </div>
-          <v-col class="pb-0" cols="2">
-            <DatePicker
-              :model="ordersFilter.createDate1"
-              @model="e => ordersFilter.createDate1"
-              title="От"
-            />
-          </v-col>
-          <v-col class="pb-0" cols="2">
-            <DatePicker
-              :model="ordersFilter.createDate2"
-              @model="e => ordersFilter.createDate2"
-              title="До"
-            />
-          </v-col>
-          <v-col class="pb-0" cols="2">
-            <v-btn :loading="loading" @click="onRefresh" color="primary" dark>
-              Обновить
-            </v-btn>
+          <v-col class="pb-0" cols="5">
+            <v-card  class="elevation-2">
+              <v-card-title>Заказ</v-card-title>
+
+              <v-card-text>
+                <v-layout row>
+                  <v-col class="pb-0" cols="3">
+                    <DatePicker
+                      :model="ordersFilter.createDate1"
+                      @model="e => ordersFilter.createDate1"
+                      title="От"
+                    />
+                  </v-col>
+
+                  <v-col class="pb-0" cols="3">
+                    <DatePicker
+                      :model="ordersFilter.createDate2"
+                      @model="e => ordersFilter.createDate2"
+                      title="До"
+                    />
+                  </v-col>
+
+                  <v-col class="pb-0" cols="3">
+                    <v-select
+                      :items="orderStatusItems"
+                      dense
+                      label="Статус"
+                      outlined
+                      item-text="name"
+                      item-value="id"
+                      hide-details="true"
+                      v-model="ordersFilter.orderStatusId"
+                    />
+                  </v-col>
+
+                  <v-col class="pb-0" cols="3">
+                    <v-btn :loading="loading" @click="onRefresh" color="primary" dark>Обновить</v-btn>
+                  </v-col>
+                </v-layout>
+              </v-card-text>
+            </v-card>
           </v-col>
         </v-row>
+
         <v-row>
-          <v-col cols="8">
+          <v-col cols="9">
             <v-data-table
+              height="70vh"
               :loading="loading"
               :headers="tbOrderHeaders"
               :items="orders"
               item-key="id"
-              class="elevation-1"
+              class="elevation-2"
             >
               <template v-slot:body="props">
                 <tbody>
@@ -160,27 +158,31 @@
                     :key="key"
                     v-for="(item, key) in props.items"
                   >
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.phone }}</td>
                     <td>{{ item.drugStoreName }}</td>
                     <td>{{ getFullAddress(item) }}</td>
-                    <td>{{ item.description }}</td>
+                    <!-- <td>{{ item.description }}</td> -->
                     <td>{{ item.deliveryTime | date }}</td>
                     <td>{{ item.deliveryTypeName }}</td>
                     <td>{{ item.orderStatusName }}</td>
                     <td>{{ item.paymentName }}</td>
-                    <td>{{ item.userAgentName }}</td>
+                    <!-- <td>{{ item.userAgentName }}</td> -->
                     <td>{{ item.createDate | date }}</td>
                   </tr>
                 </tbody>
               </template>
             </v-data-table>
           </v-col>
-          <v-col cols="4">
+          <v-col cols="3">
+
             <v-data-table
+              height="70vh"
               :loading="loading"
               :headers="tbOrderDetailsHeaders"
               :items="orderDetails"
               item-key="id"
-              class="elevation-1"
+              class="elevation-2"
             >
               <template v-slot:item.price="{ item }">
                 <span class="text_nowrap">{{ item.price | sum }}</span>
@@ -203,7 +205,7 @@
 import mutations from "../store/MutationActions/OrdersHistory";
 import spMutations from "../store/MutationActions/Directoryes";
 import { tools } from "../service/tools.js";
-
+import { bStore } from "../service/browserStore.js";
 import DatePicker from "../components/DatePicker.vue";
 
 export default {
@@ -215,7 +217,15 @@ export default {
     tools,
     tbOrderHeaders: [
       {
-        text: "Аптека",
+        text: "№",
+        value: "id"
+      },
+      {
+        text: "Тел №",
+        value: "phone"
+      },
+      {
+        text: "Склад",
         value: "drugStoreName"
       },
       {
@@ -223,10 +233,10 @@ export default {
         value: "addressName",
         minWidth: 200
       },
-      {
-        text: "Описание",
-        value: "description"
-      },
+      // {
+      //   text: "Описание",
+      //   value: "description"
+      // },
       {
         text: "Срок поставки",
         value: "deliveryTime"
@@ -243,12 +253,12 @@ export default {
         text: "Оплата",
         value: "paymentName"
       },
+      // {
+      //   text: "Пользователь",
+      //   value: "userAgentName"
+      // },
       {
-        text: "Пользователь",
-        value: "userAgentName"
-      },
-      {
-        text: "createDate",
+        text: "Дата заказа",
         value: "createDate"
       }
     ],
@@ -257,15 +267,16 @@ export default {
       {
         text: "Лекарство",
         value: "drugName",
-        minWidth: 200
+        width: 180
       },
       {
         text: "Цена",
         value: "price"
       },
       {
-        text: "Колво.",
-        value: "qty"
+        text: "Кол.",
+        value: "qty",
+        width: 80
       },
       {
         text: "Сумма",
@@ -285,16 +296,16 @@ export default {
     ],
 
     ordersFilter: {
-      drugStoreId: 0,
-      districtId: 0,
-      deliveryTime1: tools.getRealDate(0, -1),
-      deliveryTime2: tools.getRealDate(),
-      orderStatusId: 0,
-      paymentId: 0,
-      userAgentId: 0,
-      createUser: 0,
+      // drugStoreId: 0,
+      // districtId: 0,
+      // deliveryTime1: tools.getRealDate(0, -1),
+      // deliveryTime2: tools.getRealDate(),
+      // orderStatusId: 0,
+      // paymentId: 0,
+      // userAgentId: 0,
+      // createUser: 0,
       createDate1: tools.getRealDate(0, -1),
-      createDate2: tools.getRealDate()
+      createDate2: tools.getRealDate(2)
     },
 
     loading: false,
@@ -319,7 +330,8 @@ export default {
       return districts.filter(x => x.regionId == 10);
     },
 
-    payments: vm => vm.$store.getters[spMutations.getPayments]
+    payments: vm => vm.$store.getters[spMutations.getPayments],
+    orderStatusItems: vm => vm.$store.getters[spMutations.getOrderStatus]
   },
 
   created() {
@@ -327,6 +339,13 @@ export default {
   },
 
   methods: {
+    onNavClick(text) {
+      if (text == "Выход") {
+        bStore.localClear();
+        this.$router.push("/");
+      }
+    },
+
     onRefresh() {
       this.loading = true;
 

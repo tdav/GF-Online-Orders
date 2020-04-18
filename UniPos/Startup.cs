@@ -77,7 +77,7 @@ namespace UniPos
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Header,
-                    Description = "�������� ����� ������� (Bearer <token>) ---Bearer ���� �� ������ ����� �����---",
+                    Description = "Токен куйиш тартиби (Bearer <token>)",
                     Name = "Authorization",
                     Type = SecuritySchemeType.ApiKey
                 });
