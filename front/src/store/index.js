@@ -3,9 +3,18 @@ import Vuex from "vuex";
 
 Vue.use(Vuex);
 
-export default new Vuex.Store({
+import { initStates } from "./_initStates";
+
+import OrdersHistory from "./OrdersHistory.js";
+import Directoryes from "./Directoryes.js";
+
+const store = new Vuex.Store({
+  modules: [OrdersHistory, Directoryes],
   state: {},
   mutations: {},
-  actions: {},
-  modules: {}
+  actions: {}
 });
+
+initStates(store);
+
+export default store;

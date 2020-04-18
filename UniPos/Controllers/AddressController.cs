@@ -5,10 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Swashbuckle.AspNetCore.Annotations;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UniPos.Extensions;
 using UniPos.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography.X509Certificates;
 
 namespace UniPos.Controllers
 {
@@ -19,12 +22,12 @@ namespace UniPos.Controllers
     public class AddressController : ControllerBase
     {
         private readonly IUnitOfWork uow;
-        
+        private readonly MyDbContext ctx;
 
-        public AddressController(IUnitOfWork unitOfWork)
+        public AddressController(IUnitOfWork unitOfWork, MyDbContext _ctx)
         {
             uow = unitOfWork;
-
+            ctx = _ctx;
             /*
                UserId = User.GetId();
             IsAdmin = User.IsRoleAdmin();
@@ -36,18 +39,61 @@ namespace UniPos.Controllers
         [HttpGet]
         public async Task<ActionResult> Get()
         {
-            var UserId = User.GetId();
-            var _storage = uow.GetRepository<tbAddress>();
-            var res = await _storage.GetAllAsync(x => x.CreateUser == UserId);
-            return Ok(res);
+            try
+            {
+                var UserId = User.GetId();
+
+                var res = await ctx.tbAddress
+                                   .Where(x => x.CreateUser == UserId)
+                                   .Include(x => x.District)
+                                   .Include(x => x.District.Region)
+                                   .Select(x => new viAddress
+                                   {
+                                       Id = x.Id,
+                                       RegionId = x.RegionId,
+                                       RegionName = x.Region.Name,
+                                       DistrictId = x.DistrictId,
+                                       DistrictName = x.District.Name,
+                                       Street = x.Street,
+                                       House = x.House,
+                                       Flat = x.Flat,
+                                       Waymark = x.Waymark,
+                                       Latitude = x.Latitude,
+                                       Longitude = x.Longitude,
+                                       Description = x.Description
+                                   }).ToListAsync();
+
+                return Ok(res);
+            }
+            catch (Exception ee)
+            {
+                return NotFound(ee.Message);
+            }
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult> Get(int id)
         {
             var UserId = User.GetId();
-            var _storage = uow.GetRepository<tbAddress>();
-            var res = await _storage.GetAllAsync(x => x.Id == id && x.CreateUser == UserId);
+            var res = await ctx.tbAddress
+                             .Include(x => x.District)
+                             .Include(x => x.District.Region)
+                             .Where(x => x.CreateUser == UserId && x.Id == id)
+                             .Select(x => new viAddress
+                             {
+                                 Id = x.Id,
+                                 RegionId = x.RegionId,
+                                 RegionName = x.Region.Name,
+                                 DistrictId = x.DistrictId,
+                                 DistrictName = x.District.Name,
+                                 Street = x.Street,
+                                 House = x.House,
+                                 Flat = x.Flat,
+                                 Waymark = x.Waymark,
+                                 Latitude = x.Latitude,
+                                 Longitude = x.Longitude,
+                                 Description = x.Description
+                             }).FirstOrDefaultAsync();
 
             if (res != null)
             {
@@ -64,7 +110,7 @@ namespace UniPos.Controllers
         {
             var UserId = User.GetId();
             value.CreateUser = UserId;
-            value.CreateDate= DateTime.Now;
+            value.CreateDate = DateTime.Now;
 
             var _storage = uow.GetRepository<tbAddress>();
             await _storage.InsertAsync(value);

@@ -1,8 +1,12 @@
 <template>
-  <v-app id="inspire">
-    <v-navigation-drawer v-model="drawer" :clipped="$vuetify.breakpoint.lgAndUp" app>
+  <div>
+    <v-navigation-drawer
+      v-model="drawer"
+      :clipped="$vuetify.breakpoint.lgAndUp"
+      app
+    >
       <v-list dense>
-        <template v-for="item in items">
+        <template v-for="item in navItems">
           <v-row v-if="item.heading" :key="item.heading" align="center">
             <v-col cols="6">
               <v-subheader v-if="item.heading">{{ item.heading }}</v-subheader>
@@ -44,7 +48,12 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-app-bar :clipped-left="$vuetify.breakpoint.lgAndUp" app color="blue darken-3" dark>
+    <v-app-bar
+      :clipped-left="$vuetify.breakpoint.lgAndUp"
+      app
+      color="blue darken-3"
+      dark
+    >
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <v-toolbar-title style="width: 300px" class="ml-0 pl-4">
         <span class="hidden-sm-and-down">Pharmacy</span>
@@ -61,145 +70,310 @@
       />-->
     </v-app-bar>
 
-
     <v-content>
-      <v-layout column fill-height >
+      <v-container>
         <v-row>
-          <v-data-table
-            v-model="selected"
-            :headers="headers"
-            :items="desserts"
-            :single-select="singleSelect"
-            item-key="name"
-            show-select
-            class="elevation-1"
-          >
-          
-          </v-data-table>
+          <div class="w-100 px-3">
+            <div>
+              Доставка
+            </div>
+          </div>
+          <v-col class="pb-0" cols="3">
+            <v-select
+              :items="districts"
+              dense
+              label="Район"
+              outlined
+              item-text="name"
+              item-value="id"
+              v-model="ordersFilter.districtId"
+            />
+          </v-col>
+          <v-col class="pb-0" cols="2">
+            <DatePicker
+              :model="ordersFilter.deliveryTime1"
+              @model="e => ordersFilter.deliveryTime1"
+              title="От"
+            />
+          </v-col>
+
+          <v-col class="pb-0" cols="2">
+            <DatePicker
+              :model="ordersFilter.deliveryTime2"
+              @model="e => ordersFilter.deliveryTime2"
+              title="До"
+            />
+          </v-col>
+          <v-col class="pb-0" cols="2">
+            <v-select
+              :items="payments"
+              dense
+              label="Тип оплаты"
+              outlined
+              item-text="name"
+              item-value="id"
+              v-model="ordersFilter.paymentId"
+            />
+          </v-col>
         </v-row>
-      </v-layout>
+        <v-row>
+          <div class="w-100 px-3">
+            <div>
+              Заказ
+            </div>
+          </div>
+          <v-col class="pb-0" cols="2">
+            <DatePicker
+              :model="ordersFilter.createDate1"
+              @model="e => ordersFilter.createDate1"
+              title="От"
+            />
+          </v-col>
+          <v-col class="pb-0" cols="2">
+            <DatePicker
+              :model="ordersFilter.createDate2"
+              @model="e => ordersFilter.createDate2"
+              title="До"
+            />
+          </v-col>
+          <v-col class="pb-0" cols="2">
+            <v-btn :loading="loading" @click="onRefresh" color="primary" dark>
+              Обновить
+            </v-btn>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="8">
+            <v-data-table
+              :loading="loading"
+              :headers="tbOrderHeaders"
+              :items="orders"
+              item-key="id"
+              class="elevation-1"
+            >
+              <template v-slot:body="props">
+                <tbody>
+                  <tr
+                    class="c-pointer"
+                    @click="onSelectOrder(item)"
+                    :class="item.id == selectedOrder.id ? 'dt-active' : ''"
+                    :key="key"
+                    v-for="(item, key) in props.items"
+                  >
+                    <td>{{ item.drugStoreName }}</td>
+                    <td>{{ getFullAddress(item) }}</td>
+                    <td>{{ item.description }}</td>
+                    <td>{{ item.deliveryTime | date }}</td>
+                    <td>{{ item.deliveryTypeName }}</td>
+                    <td>{{ item.orderStatusName }}</td>
+                    <td>{{ item.paymentName }}</td>
+                    <td>{{ item.userAgentName }}</td>
+                    <td>{{ item.createDate | date }}</td>
+                  </tr>
+                </tbody>
+              </template>
+            </v-data-table>
+          </v-col>
+          <v-col cols="4">
+            <v-data-table
+              :loading="loading"
+              :headers="tbOrderDetailsHeaders"
+              :items="orderDetails"
+              item-key="id"
+              class="elevation-1"
+            >
+              <template v-slot:item.price="{ item }">
+                <span class="text_nowrap">{{ item.price | sum }}</span>
+              </template>
+              <template v-slot:item.qty="{ item }">
+                <span class="text_nowrap">{{ item.qty | sum }}</span>
+              </template>
+              <template v-slot:item.totalSum="{ item }">
+                <span class="text_nowrap">{{ item.totalSum | sum }}</span>
+              </template>
+            </v-data-table>
+          </v-col>
+        </v-row>
+      </v-container>
     </v-content>
-
-
-  </v-app>
+  </div>
 </template>
 
 <script>
+import mutations from "../store/MutationActions/OrdersHistory";
+import spMutations from "../store/MutationActions/Directoryes";
+import { tools } from "../service/tools.js";
+
+import DatePicker from "../components/DatePicker.vue";
+
 export default {
-  props: {
-    source: String
+  components: {
+    DatePicker
   },
+
   data: () => ({
-    singleSelect: false,
-    selected: [],
-    headers: [
+    tools,
+    tbOrderHeaders: [
       {
-        text: "Dessert (100g serving)",
-        align: "start",
-        sortable: false,
-        value: "name"
-      },
-      { text: "Calories", value: "calories" },
-      { text: "Fat (g)", value: "fat" },
-      { text: "Carbs (g)", value: "carbs" },
-      { text: "Protein (g)", value: "protein" },
-      { text: "Iron (%)", value: "iron" }
-    ],
-    desserts: [
-      {
-        name: "Frozen Yogurt",
-        calories: 159,
-        fat: 6.0,
-        carbs: 24,
-        protein: 4.0,
-        iron: "1%"
+        text: "Аптека",
+        value: "drugStoreName"
       },
       {
-        name: "Ice cream sandwich",
-        calories: 237,
-        fat: 9.0,
-        carbs: 37,
-        protein: 4.3,
-        iron: "1%"
+        text: "Адрес",
+        value: "addressName",
+        minWidth: 200
       },
       {
-        name: "Eclair",
-        calories: 262,
-        fat: 16.0,
-        carbs: 23,
-        protein: 6.0,
-        iron: "7%"
+        text: "Описание",
+        value: "description"
       },
       {
-        name: "Cupcake",
-        calories: 305,
-        fat: 3.7,
-        carbs: 67,
-        protein: 4.3,
-        iron: "8%"
+        text: "Срок поставки",
+        value: "deliveryTime"
       },
       {
-        name: "Gingerbread",
-        calories: 356,
-        fat: 16.0,
-        carbs: 49,
-        protein: 3.9,
-        iron: "16%"
+        text: "Тип доставки",
+        value: "deliveryTypeName"
       },
       {
-        name: "Jelly bean",
-        calories: 375,
-        fat: 0.0,
-        carbs: 94,
-        protein: 0.0,
-        iron: "0%"
+        text: "Статус",
+        value: "orderStatusName"
       },
       {
-        name: "Lollipop",
-        calories: 392,
-        fat: 0.2,
-        carbs: 98,
-        protein: 0,
-        iron: "2%"
+        text: "Оплата",
+        value: "paymentName"
       },
       {
-        name: "Honeycomb",
-        calories: 408,
-        fat: 3.2,
-        carbs: 87,
-        protein: 6.5,
-        iron: "45%"
+        text: "Пользователь",
+        value: "userAgentName"
       },
       {
-        name: "Donut",
-        calories: 452,
-        fat: 25.0,
-        carbs: 51,
-        protein: 4.9,
-        iron: "22%"
-      },
-      {
-        name: "KitKat",
-        calories: 518,
-        fat: 26.0,
-        carbs: 65,
-        protein: 7,
-        iron: "6%"
+        text: "createDate",
+        value: "createDate"
       }
     ],
 
-    dialog: false,
-    drawer: null,
-    items: [
+    tbOrderDetailsHeaders: [
+      {
+        text: "Лекарство",
+        value: "drugName",
+        minWidth: 200
+      },
+      {
+        text: "Цена",
+        value: "price"
+      },
+      {
+        text: "Колво.",
+        value: "qty"
+      },
+      {
+        text: "Сумма",
+        value: "totalSum"
+      }
+    ],
+
+    drawer: false,
+    navItems: [
       { icon: "mdi-history", text: "Заказлар" },
       { icon: "mdi-contacts", text: "Категории" },
       { icon: "mdi-sitemap", text: "Поставщики" },
-
       { icon: "mdi-package-variant", text: "Мой профиль" },
       { icon: "mdi-help-circle", text: "Тех. поддержка" },
       { icon: "mdi-alert-circle-outline", text: "О приложения" },
       { icon: "mdi-keyboard", text: "Выход" }
-    ]
-  })
+    ],
+
+    ordersFilter: {
+      drugStoreId: 0,
+      districtId: 0,
+      deliveryTime1: tools.getRealDate(0, -1),
+      deliveryTime2: tools.getRealDate(),
+      orderStatusId: 0,
+      paymentId: 0,
+      userAgentId: 0,
+      createUser: 0,
+      createDate1: tools.getRealDate(0, -1),
+      createDate2: tools.getRealDate()
+    },
+
+    loading: false,
+    selectedOrder: []
+  }),
+
+  computed: {
+    orders: {
+      get: vm => vm.$store.getters[mutations.getOrders],
+
+      set(v) {
+        this.$store.dispatch(mutations.setOrders, v);
+      }
+    },
+
+    orderDetails: {
+      get: vm => (vm.selectedOrder.id ? vm.selectedOrder.orderDetails : [])
+    },
+
+    districts() {
+      let districts = this.$store.getters[spMutations.getDistricts];
+      return districts.filter(x => x.regionId == 10);
+    },
+
+    payments: vm => vm.$store.getters[spMutations.getPayments]
+  },
+
+  created() {
+    this.onRefresh();
+  },
+
+  methods: {
+    onRefresh() {
+      this.loading = true;
+
+      this.$http.post("order/filter", this.ordersFilter).then(res => {
+        this.loading = false;
+        this.orders = Array.isArray(res) ? res : [];
+        this.selectedOrder = this.orders.length ? this.orders[0] : {};
+      });
+    },
+
+    onSelectOrder(e) {
+      this.selectedOrder = e;
+    },
+
+    getFullAddress(item) {
+      let adrs = {
+        regionName: item.regionName,
+        districtName: item.districtName,
+        street: item.street,
+        house: item.house,
+        flat: item.flat,
+        waymark: item.waymark
+      };
+
+      return Object.keys(adrs)
+        .filter(key => adrs[key] && adrs[key].trim())
+        .map(key => adrs[key])
+        .join(", ");
+    }
+  }
 };
 </script>
+
+<style>
+.w-100 {
+  width: 100%;
+}
+
+.c-pointer {
+  cursor: pointer;
+}
+
+.dt-active {
+  background-color: #d4d4d4 !important;
+}
+
+.text_nowrap {
+  white-space: nowrap;
+}
+</style>

@@ -5,6 +5,10 @@ import router from "./router";
 import store from "./store";
 import vuetify from "./plugins/vuetify";
 
+import "./utils/fetch.config";
+import "./service/filters";
+import "./service/validators";
+
 Vue.config.productionTip = false;
 
 new Vue({

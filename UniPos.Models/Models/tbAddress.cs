@@ -11,8 +11,10 @@ namespace UniPos.Models
         public int Id { get; set; }
 
         public int RegionId { get; set; }
+        public spRegion Region { get; set; }
 
         public int DistrictId { get; set; }
+        public spDistrict District { get; set; }
 
         [StringLength(100)]
         public string Street { get; set; }

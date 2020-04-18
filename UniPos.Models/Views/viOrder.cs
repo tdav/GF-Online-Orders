@@ -11,15 +11,18 @@ namespace UniPos.Models.Views
         public string DrugStoreName { get; set; }
         
         public int? AddressId { get; set; }
+        public string AddressName { get; set; }
         public int? RegionId { get; set; }
+        public string RegionName { get; set; }
         public int? DistrictId { get; set; }
+        public string DistrictName { get; set; }
         public string Street { get; set; }
         public string House { get; set; }
         public string Flat { get; set; }
         public string Waymark { get; set; }
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }
-
+        
 
 
         public string Description { get; set; }
@@ -34,6 +37,8 @@ namespace UniPos.Models.Views
         public string UserAgentName { get; set; }
         public int CreateUser { get; set; }
         public DateTime CreateDate { get; set; }
+
+        public int Status { get; set; }
         public ICollection<viOrderDetails> OrderDetails { get; set; }
     }
 }

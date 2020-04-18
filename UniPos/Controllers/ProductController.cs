@@ -42,7 +42,7 @@ namespace UniPos.Controllers
                          {
                              Id = x.Id,
                              DrugId = x.DrugId,
-                             DrugName = x.Drug.Name,
+                             DrugName = x.Drug.Description,
                              Manufacturer = x.Drug.Manufacturer.Name,
                              ExpiryDate = x.ExpiryDate,
                              Price = x.Price,
@@ -66,7 +66,7 @@ namespace UniPos.Controllers
                          {
                              Id = x.Id,
                              DrugId = x.DrugId,
-                             DrugName = x.Drug.Name,
+                             DrugName = x.Drug.Description,
                              Manufacturer = x.Drug.Manufacturer.Name,
                              ExpiryDate = x.ExpiryDate,
                              Price = x.Price,
