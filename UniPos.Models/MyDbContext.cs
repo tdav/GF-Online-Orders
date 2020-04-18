@@ -17,6 +17,7 @@ namespace UniPos.Models
         #region Models
         public virtual DbSet<spAccessList> spAccessLists { get; set; }
         public virtual DbSet<spCountry> spCountries { get; set; }
+        public virtual DbSet<spDeliveryType> spDeliveryTypes { get; set; }
         public virtual DbSet<spDistrict> spDistricts { get; set; }
         public virtual DbSet<spDrug> spDrugs { get; set; }
         public virtual DbSet<spDrugCategory> spDrugCategories { get; set; }

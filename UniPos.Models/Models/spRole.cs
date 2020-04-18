@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 namespace UniPos.Models
 {
     /// <summary>
-    /// таблица Роли пользователь
+    /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     /// </summary>
     public partial class spRole : BaseModel
     {

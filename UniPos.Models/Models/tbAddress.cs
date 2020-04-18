@@ -27,19 +27,21 @@ namespace UniPos.Models
         /// Квартира
         /// </summary>
         [StringLength(10)]
-        public string Flat { get; set; }
+        public string? Flat { get; set; }
 
 
         /// <summary>
         /// Ориентир
         /// </summary>
         [StringLength(500)]       
-        public string Waymark { get; set; }
+        public string? Waymark { get; set; }
 
 
         public decimal Latitude { get; set; }
         
         public decimal Longitude { get; set; }
 
+        [StringLength(100)]
+        public string? Description { get; set; }
     }
 }

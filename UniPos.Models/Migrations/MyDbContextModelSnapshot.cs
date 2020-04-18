@@ -107,6 +107,58 @@ namespace UniPos.Models.Migrations
                     b.ToTable("sp_countries");
                 });
 
+            modelBuilder.Entity("UniPos.Models.spDeliveryType", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnName("id")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Cost")
+                        .HasColumnName("cost")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnName("create_date")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("CreateUser")
+                        .HasColumnName("create_user")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DeliveryTime")
+                        .HasColumnName("delivery_time")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnName("name")
+                        .HasColumnType("character varying(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<int>("Status")
+                        .HasColumnName("status")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnName("update_date")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int?>("UpdateUser")
+                        .HasColumnName("update_user")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id")
+                        .HasName("pk_sp_delivery_types");
+
+                    b.HasIndex("CreateUser")
+                        .HasName("ix_sp_delivery_types_create_user");
+
+                    b.HasIndex("Status")
+                        .HasName("ix_sp_delivery_types_status");
+
+                    b.ToTable("sp_delivery_types");
+                });
+
             modelBuilder.Entity("UniPos.Models.spDistrict", b =>
                 {
                     b.Property<int>("Id")
@@ -853,6 +905,11 @@ namespace UniPos.Models.Migrations
                         .HasColumnName("create_user")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Description")
+                        .HasColumnName("description")
+                        .HasColumnType("character varying(100)")
+                        .HasMaxLength(100);
+
                     b.Property<int>("DistrictId")
                         .HasColumnName("district_id")
                         .HasColumnType("integer");
@@ -1045,6 +1102,10 @@ namespace UniPos.Models.Migrations
                         .HasColumnName("delivery_time")
                         .HasColumnType("timestamp without time zone");
 
+                    b.Property<int>("DeliveryTypeId")
+                        .HasColumnName("delivery_type_id")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Description")
                         .HasColumnName("description")
                         .HasColumnType("character varying(200)")
@@ -1094,6 +1155,9 @@ namespace UniPos.Models.Migrations
 
                     b.HasIndex("CreateUser")
                         .HasName("ix_tb_orders_create_user");
+
+                    b.HasIndex("DeliveryTypeId")
+                        .HasName("ix_tb_orders_delivery_type_id");
 
                     b.HasIndex("DrugStoreId")
                         .HasName("ix_tb_orders_drug_store_id");
@@ -1453,6 +1517,13 @@ namespace UniPos.Models.Migrations
                         .WithMany()
                         .HasForeignKey("AddressId")
                         .HasConstraintName("fk_tb_orders_tb_address_address_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("UniPos.Models.spDeliveryType", "DeliveryType")
+                        .WithMany()
+                        .HasForeignKey("DeliveryTypeId")
+                        .HasConstraintName("fk_tb_orders_sp_delivery_types_delivery_type_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

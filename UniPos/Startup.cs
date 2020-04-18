@@ -77,7 +77,7 @@ namespace UniPos
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Header,
-                    Description = "Токентни кушиш тартиби (Bearer <token>) ---Bearer сузи ва пробел кейин токен---",
+                    Description = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (Bearer <token>) ---Bearer пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ---",
                     Name = "Authorization",
                     Type = SecuritySchemeType.ApiKey
                 });
@@ -106,6 +106,7 @@ namespace UniPos
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, MyDbContext dataContext)
         {
+            UpdateDatabase(app);
             app.UseRouting();
 
             if (env.IsDevelopment())
@@ -147,6 +148,19 @@ namespace UniPos
                 c.SupportedSubmitMethods(SubmitMethod.Get, SubmitMethod.Post, SubmitMethod.Delete, SubmitMethod.Put, SubmitMethod.Head);
 
             });
+        }
+
+        private static void UpdateDatabase(IApplicationBuilder app)
+        {
+            using (var serviceScope = app.ApplicationServices
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                using (var context = serviceScope.ServiceProvider.GetService<MyDbContext>())
+                {
+                    context.Database.Migrate();
+                }
+            }
         }
     }
 }

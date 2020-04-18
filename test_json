@@ -1,10 +1,6 @@
 {
-  "drugStoreName": "string",
-  "regionId": 10,
-  "districtId": 542,
-  "address": "string",
-  "latitude": 0,
-  "longitude": 0,
+  "drugStoreName": "string",   
+  "addressId": 0,  
   "deliveryTime": "2020-04-16T13:59:55.792Z",
   "paymentId": 1,
   "userAgentId": 1,
@@ -63,3 +59,16 @@
     }
   ]
 }
+
+
+  public int Status { get; set; }
+
+        [Required]
+        public DateTime CreateDate { get; set; }
+
+        public DateTime? UpdateDate { get; set; }
+
+        [Index]
+        [Required]
+        public int CreateUser { get; set; }
+        public int? UpdateUser { get; set; } 

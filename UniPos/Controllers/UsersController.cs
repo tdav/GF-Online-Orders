@@ -60,7 +60,10 @@ namespace UniPos.Controllers
             await rp.InsertAsync(u);
             await db.SaveChangesAsync();
 
-            return Ok();
+            var rpUser = db.GetRepository<tbUser>(true) as UserService;
+            var user = rpUser.Authenticate(model.Username, model.Password);
+
+            return Ok(user);
         }
 
 

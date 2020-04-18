@@ -16,7 +16,7 @@ namespace UniPos.Controllers
     [SwaggerTag("Заказлар")]
     [Route("api/[controller]")]
     [ApiController]
-    public class OrderController : MyControllerBase
+    public class OrderController : ControllerBase
     {
         private readonly MyDbContext ctx;
         public OrderController(MyDbContext context)
@@ -29,59 +29,97 @@ namespace UniPos.Controllers
         [SwaggerOperation("Янги")]
         public async Task<ActionResult> PosttbOrder(viOrder value)
         {
-            tbOrderHeader or;
 
-            if (value.Id == null)
-            {
-                or = new tbOrderHeader();
-                or.CreateDate = DateTime.Now;
-                or.CreateUser = UserId;
-                or.DeliveryTime = DateTime.Now.AddHours(2);
+            ctx.BeginTransaction();
 
-                or.OrderStatusId = 1;
-                or.PaymentId = 1;
-                or.UserAgentId = 1;
-            }
-            else
+            try
             {
-                or = await ctx.tbOrders.FindAsync(value.Id);
-                or.CreateDate = value.CreateDate;
-                or.CreateUser = value.CreateUser;
-                or.DeliveryTime = value.DeliveryTime;
-                or.OrderStatusId = value.OrderStatusId;
+                tbOrderHeader or;
+                tbAddress adr;
+
+                if (value.Id == null)
+                {
+                    or = new tbOrderHeader();
+                    or.CreateDate = DateTime.Now;
+                    or.CreateUser = User.GetId();
+                    or.OrderStatusId = 1;                  
+                }
+                else
+                {
+                    return BadRequest("Бундай ID лик заказ бор...");
+                    //or = await ctx.tbOrders.FindAsync(value.Id);
+                    //or.UpdateUser = User.GetId();
+                    //or.UpdateDate = DateTime.Now;
+                }
+
+                var dt = await ctx.spDeliveryTypes.FindAsync(value.DeliveryTypeId);
+           
+
+                or.Status = 1;
+                or.DrugStoreId = 1001;
+                or.DeliveryTime = DateTime.Now.AddHours(dt.DeliveryTime);
+                or.Description = value.Description;
                 or.PaymentId = value.PaymentId;
                 or.UserAgentId = value.UserAgentId;
-            }
+                or.DeliveryTypeId = value.DeliveryTypeId;
 
-            or.Status = 1;
-            or.DrugStoreId = 1001;
-            or.Description = value.Description;
-            or.AddressId = value.AddressId;
-            or.ItemQty = value.OrderDetails.Count();
-            or.Summa = value.OrderDetails.Sum(x => x.TotalSum);
 
-            or.OrderDetails = new List<tbOrderDetails>();
-            foreach (var it in value.OrderDetails)
-            {
-                var od = new tbOrderDetails();
-                od.CreateDate = DateTime.Now;
-                od.CreateUser = value.CreateUser;
+                if (value.AddressId == null || value.AddressId == 0)
+                {
+                    adr = new tbAddress();
+                    adr.RegionId = value.RegionId ?? value.RegionId.Value;
+                    adr.DistrictId = value.DistrictId ?? value.DistrictId.Value;
+                    adr.Street = value.Street;
+                    adr.House = value.House;
+                    adr.Flat = value.Flat;
+                    adr.Waymark = value.Waymark;
+                    adr.Latitude = value.Latitude;
+                    adr.Longitude = value.Longitude;
 
-                if (it.ProductId == null)
-                    od.ProductId = await GetDrugIdAsync(it.DrugName);
+                    adr.CreateDate = DateTime.Now;
+                    adr.CreateUser = User.GetId();
+                    adr.Status = 1;
+
+                    await ctx.tbAddress.AddAsync(adr);
+                    await ctx.SaveChangesAsync();
+                    or.AddressId = adr.Id;
+                }
                 else
-                    od.ProductId = it.ProductId ?? it.ProductId.Value;
+                {
+                    or.AddressId = value.AddressId.Value;
+                }
 
-                od.Qty = it.Qty;
-                od.Status = 1;
+                or.ItemQty = value.OrderDetails.Count();
+                or.Summa = value.OrderDetails.Sum(x => x.TotalSum);
 
-                or.OrderDetails.Add(od);
+                or.OrderDetails = new List<tbOrderDetails>();
+                foreach (var it in value.OrderDetails)
+                {
+                    var od = new tbOrderDetails();
+                    od.CreateDate = DateTime.Now;
+                    od.CreateUser = value.CreateUser;
+
+                    if (it.ProductId == null || it.ProductId == 0)
+                        od.ProductId = await GetDrugIdAsync(it.DrugName);
+                    else
+                        od.ProductId = it.ProductId ?? it.ProductId.Value;
+
+                    od.Qty = it.Qty;
+                    od.Status = 1;
+
+                    or.OrderDetails.Add(od);
+                }
+
+                await ctx.tbOrders.AddAsync(or);
+                await ctx.SaveChangesAsync();
+                ctx.Commit();
+                return Ok(new { OrderId=or.Id, DeliveryTime=or.DeliveryTime });
             }
-
-            await ctx.tbOrders.AddAsync(or);
-            await ctx.SaveChangesAsync();
-
-            return Ok();
+            catch (Exception)
+            {
+                ctx.Rollback();
+                return BadRequest();
+            }
         }
 
         private async Task<int> GetDrugIdAsync(string drugName)
@@ -95,10 +133,10 @@ namespace UniPos.Controllers
         [HttpGet("{id}")]
         [SwaggerOperation("Фойдаланувчи закази")]
         public async Task<ActionResult<tbOrderHeader>> GetOrderById(int id)
-        {           
+        {
             var tbOrder = await ctx.tbOrders
                                         .Include(x => x.OrderDetails)
-                                        .Where(x => x.CreateUser == UserId)
+                                        .Where(x => x.CreateUser == User.GetId())
                                         .SingleOrDefaultAsync(x => x.Id == id);
 
             if (tbOrder == null)
@@ -116,17 +154,17 @@ namespace UniPos.Controllers
         {
             if (param == null) return BadRequest();
 
-            if (!IsAdmin) return NotFound();
-
-
             var query = ctx.tbOrders.Include(x => x.OrderDetails);
-
+            
+            
+            if (!User.IsRoleAdmin())
+                query.Where(x => x.CreateUser == param.CreateUser);
 
             if (param.CreateUser != null)
                 query.Where(x => x.CreateUser == param.CreateUser);
 
             if (param.DistrictId != null)
-                query.Include(x=>x.Address).Where(x => x.Address.DistrictId == param.DistrictId);
+                query.Include(x => x.Address).Where(x => x.Address.DistrictId == param.DistrictId);
 
             if (param.DrugStoreId != null)
                 query.Where(x => x.DrugStoreId == param.DrugStoreId);
@@ -140,7 +178,7 @@ namespace UniPos.Controllers
             if (param.UserAgentId != null)
                 query.Where(x => x.UserAgentId == param.UserAgentId);
 
-            
+
             if (param.CreateDate1 != null && param.CreateDate2 != null)
                 query.Where(x => x.CreateDate <= param.CreateDate1 && x.CreateDate >= param.CreateDate2);
 
@@ -150,7 +188,7 @@ namespace UniPos.Controllers
             if (param.CreateDate1 == null && param.CreateDate2 != null)
                 query.Where(x => x.CreateDate >= param.CreateDate2);
 
-            
+
             if (param.DeliveryTime1 != null && param.DeliveryTime2 != null)
                 query.Where(x => x.DeliveryTime <= param.DeliveryTime1 && x.DeliveryTime >= param.DeliveryTime2);
 
@@ -177,11 +215,11 @@ namespace UniPos.Controllers
         {
             tbOrderHeader order;
 
-            if (IsAdmin)
+            if (User.IsRoleAdmin())
             {   // Is User
                 order = await ctx.tbOrders
                                       .Include(x => x.OrderDetails)
-                                      .Where(x => x.CreateUser == UserId)
+                                      .Where(x => x.CreateUser == User.GetId())
                                       .SingleOrDefaultAsync(x => x.Id == id);
             }
             else
@@ -197,7 +235,8 @@ namespace UniPos.Controllers
                 order.OrderStatusId = id;
                 await ctx.SaveChangesAsync();
                 return Ok();
-            }else
+            }
+            else
             {
                 return NotFound();
             }

@@ -31,6 +31,15 @@ namespace UniPos.Models
         [Required]
         public DateTime DeliveryTime { get; set; }
 
+
+        /// <summary>
+        /// Доставка тури
+        /// </summary>
+        [Required]
+        public int DeliveryTypeId { get; set; }
+
+        public spDeliveryType DeliveryType { get; set;}
+
         [Required]
         public int OrderStatusId { get; set; }
         public spOrderStatus OrderStatus { get; set; }

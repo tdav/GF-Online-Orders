@@ -1,0 +1,17 @@
+
+	https://bl.beeline.uz/billmgr?func=service.instruction.html&elid=31385
+	Тарифный план: BeeCloud Plus
+	Дата открытия: 2020-04-17
+	Адрес панели управления: https://iaas.beeline.uz
+	Пользователь: mirilhomov@gmail.com-31385
+	Пароль: coCjbsUfvN  spGr3X3uQun4
+	
+	
+	ssh root@185.183.243.251
+	spGr3X3uQun4
+	
+	
+	
+	
+	
+	Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IjQiLCJyb2xlIjoiMTsiLCJuYmYiOjE1ODcxNTYwMzEsImV4cCI6MTU4Nzc2MDgzMSwiaWF0IjoxNTg3MTU2MDMxfQ.5CSz8SIRz82R_8BzrK_cuYXMA-JKQlEL4rdf7qb3tIk

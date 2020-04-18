@@ -1,0 +1,19 @@
+
+
+Заказлар руйхати филтерланиб олинади
+
+/api/Order/filter
+{
+  "drugStoreId": null,		склад
+  "districtId": null,		туман
+  "deliveryTime1": null,	доставка вакти 
+  "deliveryTime2": null,	доставка вакти  оралик булса
+  "orderStatusId": null,	заказ статуси
+  "paymentId": null,		тулов тури
+  "userAgentId": null,		заказ килган фойдаланувчи тури
+  "createUser": null,		кайси фойдаланувчи
+  "createDate1": null,		заказ килган сана
+  "createDate2": null		заказ килган сана оралик
+}
+
+ишлатимидиган поляларни null киймати олиш керак

@@ -15,21 +15,28 @@ namespace UniPos.Controllers
     [Authorize]
     [ApiController]
     [SwaggerTag("Адрес")]
-    public class AddressController : MyControllerBase
+    [Route("api/[controller]")]
+    public class AddressController : ControllerBase
     {
         private readonly IUnitOfWork uow;
-        private readonly IMemoryCache cache;
+        
 
-        public AddressController(IUnitOfWork unitOfWork, IMemoryCache _cache)
+        public AddressController(IUnitOfWork unitOfWork)
         {
             uow = unitOfWork;
-            cache = _cache;
+
+            /*
+               UserId = User.GetId();
+            IsAdmin = User.IsRoleAdmin();
+            UserAccess = User.GetAccess();
+             */
         }
 
 
         [HttpGet]
         public async Task<ActionResult> Get()
         {
+            var UserId = User.GetId();
             var _storage = uow.GetRepository<tbAddress>();
             var res = await _storage.GetAllAsync(x => x.CreateUser == UserId);
             return Ok(res);
@@ -38,6 +45,7 @@ namespace UniPos.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult> Get(int id)
         {
+            var UserId = User.GetId();
             var _storage = uow.GetRepository<tbAddress>();
             var res = await _storage.GetAllAsync(x => x.Id == id && x.CreateUser == UserId);
 
@@ -54,6 +62,7 @@ namespace UniPos.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] tbAddress value)
         {
+            var UserId = User.GetId();
             value.CreateUser = UserId;
             value.CreateDate= DateTime.Now;
 
@@ -66,6 +75,7 @@ namespace UniPos.Controllers
         [HttpPut]
         public async Task<IActionResult> Put([FromBody]tbAddress value)
         {
+            var UserId = User.GetId();
             value.UpdateUser = UserId;
             value.UpdateDate = DateTime.Now;
 
